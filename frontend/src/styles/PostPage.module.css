@@ -1,0 +1,693 @@
+/* frontend/src/styles/PostPage.module.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+.postPage {
+  font-family: 'Inter', sans-serif;
+  color: #1a1a1a;
+  background: #ffffff;
+  min-height: 100vh;
+  padding: 2rem;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+:global(.dark-mode) .postPage {
+  background: #0a0a0a;
+  color: #f0f0f0;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ===== LOADING STATE ===== */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f0f0f0;
+  border-top: 3px solid #000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+:global(.dark-mode) .loadingSpinner {
+  border-color: #222;
+  border-top-color: #fff;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loadingContainer p {
+  color: #666;
+  font-size: 1rem;
+}
+
+:global(.dark-mode) .loadingContainer p {
+  color: #999;
+}
+
+/* ===== ERROR STATE ===== */
+.errorContainer {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #f8f8f8;
+  border: 2px solid #000;
+  margin: 2rem 0;
+}
+
+:global(.dark-mode) .errorContainer {
+  background: #111;
+  border-color: #fff;
+}
+
+.errorContainer h2 {
+  font-size: 2.5rem;
+  color: #000;
+  margin-bottom: 1rem;
+}
+
+:global(.dark-mode) .errorContainer h2 {
+  color: #fff;
+}
+
+.errorContainer p {
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+:global(.dark-mode) .errorContainer p {
+  color: #999;
+}
+
+.backButton {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background: #000;
+  color: #fff;
+  text-decoration: none;
+  border: 2px solid #000;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+:global(.dark-mode) .backButton {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
+.backButton:hover {
+  background: transparent;
+  color: #000;
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 #000;
+}
+
+:global(.dark-mode) .backButton:hover {
+  background: transparent;
+  color: #fff;
+  box-shadow: 4px 4px 0 #fff;
+}
+
+/* ===== POST CARD ===== */
+.postCard {
+  background: #ffffff;
+  border: 2px solid #000;
+  margin-bottom: 3rem;
+  overflow: hidden;
+  box-shadow: 8px 8px 0 #000;
+  transition: all 0.2s;
+}
+
+:global(.dark-mode) .postCard {
+  background: #0a0a0a;
+  border-color: #fff;
+  box-shadow: 8px 8px 0 #fff;
+}
+
+.postCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 10px 10px 0 #000;
+}
+
+:global(.dark-mode) .postCard:hover {
+  box-shadow: 10px 10px 0 #fff;
+}
+
+/* ===== POST HEADER ===== */
+.postHeader {
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+:global(.dark-mode) .postHeader {
+  border-bottom-color: #222;
+}
+
+.postTitle {
+  font-size: 2.8rem;
+  font-weight: 300;
+  margin: 0 0 1.5rem;
+  color: #000;
+  line-height: 1.2;
+}
+
+:global(.dark-mode) .postTitle {
+  color: #fff;
+}
+
+.postTitle::before {
+  content: '💃';
+  margin-right: 0.5rem;
+  opacity: 0.3;
+}
+
+.postTitle::after {
+  content: '🕺';
+  margin-left: 0.5rem;
+  opacity: 0.3;
+}
+
+/* ===== POST META ===== */
+.postMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.authorInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.authorAvatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #f8f8f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+  overflow: hidden;
+  border: 2px solid #000;
+}
+
+:global(.dark-mode) .authorAvatar {
+  border-color: #fff;
+  background: #111;
+}
+
+.authorAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.authorName {
+  display: block;
+  font-weight: 600;
+  color: #000;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+:global(.dark-mode) .authorName {
+  color: #fff;
+}
+
+.postDate {
+  font-size: 0.85rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+:global(.dark-mode) .postDate {
+  color: #999;
+}
+
+/* ===== POST ACTIONS ===== */
+.postActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editButton,
+.deleteButton {
+  padding: 0.5rem 1rem;
+  border: 2px solid #000;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  color: #000;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+:global(.dark-mode) .editButton,
+:global(.dark-mode) .deleteButton {
+  border-color: #fff;
+  color: #fff;
+}
+
+.editButton:hover,
+.deleteButton:hover {
+  background: #000;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 2px 2px 0 #000;
+}
+
+:global(.dark-mode) .editButton:hover,
+:global(.dark-mode) .deleteButton:hover {
+  background: #fff;
+  color: #000;
+  box-shadow: 2px 2px 0 #fff;
+}
+
+/* ===== POST IMAGE ===== */
+.postImageContainer {
+  width: 100%;
+  max-height: 500px;
+  overflow: hidden;
+  border-top: 2px solid #000;
+  border-bottom: 2px solid #000;
+}
+
+.postImage {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(100%);
+  transition: filter 0.2s;
+}
+
+.postImage:hover {
+  filter: grayscale(0%);
+}
+
+/* ===== POST CONTENT ===== */
+.postContent {
+  padding: 2rem;
+  line-height: 1.8;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+:global(.dark-mode) .postContent {
+  color: #ccc;
+}
+
+.postContent p {
+  margin-bottom: 1.5rem;
+}
+
+.postContent p:first-child::first-letter {
+  font-size: 4rem;
+  font-weight: 700;
+  float: left;
+  line-height: 1;
+  margin-right: 0.5rem;
+  color: #000;
+}
+
+:global(.dark-mode) .postContent p:first-child::first-letter {
+  color: #fff;
+}
+
+/* ===== COMMENTS SECTION ===== */
+.commentsSection {
+  background: #f8f8f8;
+  border: 2px solid #000;
+  padding: 2rem;
+  box-shadow: 8px 8px 0 #000;
+}
+
+:global(.dark-mode) .commentsSection {
+  background: #111;
+  border-color: #fff;
+  box-shadow: 8px 8px 0 #fff;
+}
+
+.commentsTitle {
+  font-size: 1.8rem;
+  font-weight: 300;
+  margin: 0 0 2rem;
+  color: #000;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+:global(.dark-mode) .commentsTitle {
+  color: #fff;
+}
+
+.commentsTitle span {
+  font-weight: 700;
+}
+
+/* ===== COMMENT FORM ===== */
+.commentForm {
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.commentForm textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #000;
+  font-size: 1rem;
+  background: #fff;
+  color: #000;
+  transition: all 0.2s;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+:global(.dark-mode) .commentForm textarea {
+  background: #0a0a0a;
+  border-color: #fff;
+  color: #fff;
+}
+
+.commentForm textarea:focus {
+  outline: none;
+  background: #f8f8f8;
+}
+
+:global(.dark-mode) .commentForm textarea:focus {
+  background: #1a1a1a;
+}
+
+.commentForm button {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  padding: 0.5rem 1.5rem;
+  background: #000;
+  color: #fff;
+  border: 2px solid #000;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+:global(.dark-mode) .commentForm button {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
+.commentForm button:hover:not(:disabled) {
+  background: transparent;
+  color: #000;
+  transform: translateY(-2px);
+  box-shadow: 2px 2px 0 #000;
+}
+
+:global(.dark-mode) .commentForm button:hover:not(:disabled) {
+  background: transparent;
+  color: #fff;
+  box-shadow: 2px 2px 0 #fff;
+}
+
+.commentForm button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== LOGIN PROMPT ===== */
+.loginPrompt {
+  text-align: center;
+  padding: 2rem;
+  background: #fff;
+  border: 2px solid #000;
+  margin-bottom: 2rem;
+}
+
+:global(.dark-mode) .loginPrompt {
+  background: #0a0a0a;
+  border-color: #fff;
+}
+
+.loginPrompt a {
+  color: #000;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 2px solid #000;
+  padding-bottom: 2px;
+  transition: all 0.2s;
+}
+
+:global(.dark-mode) .loginPrompt a {
+  color: #fff;
+  border-bottom-color: #fff;
+}
+
+.loginPrompt a:hover {
+  color: #666;
+  border-bottom-color: #666;
+}
+
+/* ===== COMMENTS LIST ===== */
+.commentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.noComments {
+  text-align: center;
+  padding: 3rem;
+  background: #fff;
+  border: 2px dashed #000;
+  color: #666;
+  font-style: italic;
+}
+
+:global(.dark-mode) .noComments {
+  background: #0a0a0a;
+  border-color: #fff;
+  color: #999;
+}
+
+/* ===== COMMENT CARD ===== */
+.commentCard {
+  background: #fff;
+  border: 2px solid #000;
+  padding: 1.5rem;
+  transition: all 0.2s;
+}
+
+:global(.dark-mode) .commentCard {
+  background: #0a0a0a;
+  border-color: #fff;
+}
+
+.commentCard:hover {
+  transform: translateX(4px);
+  box-shadow: -4px 4px 0 #000;
+}
+
+:global(.dark-mode) .commentCard:hover {
+  box-shadow: -4px 4px 0 #fff;
+}
+
+.commentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.commentAuthor {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.commentAvatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: #f8f8f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  overflow: hidden;
+  border: 2px solid #000;
+}
+
+:global(.dark-mode) .commentAvatar {
+  border-color: #fff;
+  background: #111;
+}
+
+.commentAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.commentAuthorName {
+  display: block;
+  font-weight: 600;
+  color: #000;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+:global(.dark-mode) .commentAuthorName {
+  color: #fff;
+}
+
+.commentDate {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+:global(.dark-mode) .commentDate {
+  color: #999;
+}
+
+.deleteCommentButton {
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: 2px solid #000;
+  color: #000;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:global(.dark-mode) .deleteCommentButton {
+  border-color: #fff;
+  color: #fff;
+}
+
+.deleteCommentButton:hover {
+  background: #000;
+  color: #fff;
+}
+
+:global(.dark-mode) .deleteCommentButton:hover {
+  background: #fff;
+  color: #000;
+}
+
+.commentBody {
+  margin: 0;
+  color: #444;
+  line-height: 1.6;
+  padding-left: 3rem;
+}
+
+:global(.dark-mode) .commentBody {
+  color: #ccc;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .postPage {
+    padding: 1rem;
+  }
+
+  .postTitle {
+    font-size: 2rem;
+  }
+
+  .postTitle::before,
+  .postTitle::after {
+    display: none;
+  }
+
+  .postMeta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .postActions {
+    width: 100%;
+  }
+
+  .editButton,
+  .deleteButton {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .commentsSection {
+    padding: 1.5rem;
+  }
+
+  .commentForm button {
+    position: static;
+    width: 100%;
+    margin-top: 1rem;
+  }
+
+  .commentBody {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .postHeader {
+    padding: 1.5rem;
+  }
+
+  .postTitle {
+    font-size: 1.5rem;
+  }
+
+  .authorAvatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .postContent {
+    padding: 1.5rem;
+  }
+
+  .commentHeader {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .deleteCommentButton {
+    align-self: flex-end;
+  }
+}

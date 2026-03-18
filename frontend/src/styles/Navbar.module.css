@@ -1,0 +1,413 @@
+/* frontend/src/styles/Navbar.module.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+.header {
+  background: #ffffff;
+  border-bottom: 2px solid #000;
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: background-color 0.3s, border-color 0.3s;
+  font-family: 'Inter', sans-serif;
+}
+
+:global(.dark-mode) .header {
+  background: #0a0a0a;
+  border-bottom-color: #fff;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ===== LOGO ===== */
+.logo {
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: #000;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+:global(.dark-mode) .logo {
+  color: #fff;
+}
+
+.logo:hover {
+  transform: translateY(-2px);
+}
+
+.logoIcon {
+  font-size: 1.2rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.logo:hover .logoIcon {
+  opacity: 1;
+}
+
+/* ===== NAVIGATION ===== */
+.nav {
+  display: flex;
+  align-items: center;
+}
+
+.navList {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.navList li {
+  position: relative;
+}
+
+.navList a {
+  color: #666;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+
+:global(.dark-mode) .navList a {
+  color: #999;
+}
+
+.navList a:hover {
+  color: #000;
+  border-color: #000;
+}
+
+:global(.dark-mode) .navList a:hover {
+  color: #fff;
+  border-color: #fff;
+}
+
+.navList a.active {
+  color: #000;
+  font-weight: 600;
+  border-color: #000;
+}
+
+:global(.dark-mode) .navList a.active {
+  color: #fff;
+  border-color: #fff;
+}
+
+/* ===== SIGNUP LINK ===== */
+.signupLink {
+  background: #000;
+  color: #fff !important;
+  border-color: #000 !important;
+}
+
+:global(.dark-mode) .signupLink {
+  background: #fff;
+  color: #000 !important;
+  border-color: #fff !important;
+}
+
+.signupLink:hover {
+  background: transparent;
+  color: #000 !important;
+}
+
+:global(.dark-mode) .signupLink:hover {
+  background: transparent;
+  color: #fff !important;
+}
+
+/* ===== USER MENU ===== */
+.userMenu {
+  position: relative;
+}
+
+.userButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 2px solid transparent;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.userButton:hover {
+  border-color: #000;
+}
+
+:global(.dark-mode) .userButton:hover {
+  border-color: #fff;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f8f8f8;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+  overflow: hidden;
+  border: 2px solid #000;
+}
+
+:global(.dark-mode) .avatar {
+  background: #111;
+  color: #fff;
+  border-color: #fff;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.userName {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #000;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:global(.dark-mode) .userName {
+  color: #fff;
+}
+
+/* ===== DROPDOWN MENU ===== */
+.dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  min-width: 150px;
+  background: #fff;
+  border: 2px solid #000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s;
+  z-index: 1000;
+  box-shadow: 4px 4px 0 #000;
+}
+
+:global(.dark-mode) .dropdown {
+  background: #0a0a0a;
+  border-color: #fff;
+  box-shadow: 4px 4px 0 #fff;
+}
+
+.userMenu:hover .dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdownItem {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  color: #000;
+  text-decoration: none;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+:global(.dark-mode) .dropdownItem {
+  color: #fff;
+  border-bottom-color: #222;
+}
+
+.dropdownItem:last-child {
+  border-bottom: none;
+}
+
+.dropdownItem:hover {
+  background: #f8f8f8;
+  padding-left: 1.5rem;
+}
+
+:global(.dark-mode) .dropdownItem:hover {
+  background: #111;
+}
+
+/* ===== THEME TOGGLE ===== */
+.themeToggle {
+  background: none;
+  border: 2px solid transparent;
+  font-size: 1.2rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.5rem;
+}
+
+.themeToggle:hover {
+  border-color: #000;
+  transform: translateY(-2px);
+}
+
+:global(.dark-mode) .themeToggle:hover {
+  border-color: #fff;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 968px) {
+  .container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .navList {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 1rem;
+  }
+
+  .logo {
+    font-size: 1.3rem;
+  }
+
+  .navList {
+    gap: 0.5rem;
+  }
+
+  .navList a {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .userName {
+    display: none;
+  }
+
+  .themeToggle {
+    font-size: 1rem;
+    padding: 0.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navList {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .navList li {
+    width: 100%;
+  }
+
+  .navList a {
+    width: 100%;
+    text-align: center;
+  }
+
+  .userMenu {
+    width: 100%;
+  }
+
+  .userButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dropdown {
+    width: 100%;
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    margin-top: 0.5rem;
+    display: none;
+  }
+
+  .userMenu:hover .dropdown {
+    display: block;
+  }
+  /* Add/modify these styles in Navbar.module.css */
+
+.navList {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap; /* Allow wrapping on small screens */
+  justify-content: flex-end;
+}
+
+/* For better mobile view */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .navList {
+    justify-content: center;
+    gap: 0.25rem;
+  }
+
+  .navList a,
+  .themeToggle {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navList {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .navList li {
+    width: 100%;
+  }
+
+  .navList a,
+  .themeToggle {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}
+}

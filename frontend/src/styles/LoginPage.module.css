@@ -1,0 +1,341 @@
+/* frontend/src/styles/LoginPage.module.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+.loginPage {
+  min-height: 100vh;
+  width: 100%;
+  background: #ffffff;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+}
+
+:global(.dark-mode) .loginPage {
+  background: #0a0a0a;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+  max-width: 500px;
+  width: 100%;
+  padding: 2rem;
+}
+
+/* ===== CARD ===== */
+.card {
+  background: #ffffff;
+  border: 2px solid #000;
+  box-shadow: 8px 8px 0 #000;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+:global(.dark-mode) .card {
+  background: #0a0a0a;
+  border-color: #fff;
+  box-shadow: 8px 8px 0 #fff;
+}
+
+/* ===== HEADER ===== */
+.header {
+  background: #000;
+  padding: 2rem;
+  text-align: center;
+  color: #fff;
+  border-bottom: 2px solid #000;
+}
+
+:global(.dark-mode) .header {
+  background: #fff;
+  color: #000;
+  border-bottom-color: #fff;
+}
+
+.header h2 {
+  font-size: 2rem;
+  font-weight: 300;
+  margin: 0 0 0.5rem;
+}
+
+.header h2 span {
+  font-weight: 700;
+}
+
+.header p {
+  margin: 0 0 0.5rem;
+  opacity: 0.8;
+  font-size: 0.95rem;
+}
+
+.danceEmoji {
+  font-size: 1.2rem;
+  opacity: 0.5;
+  margin-top: 0.5rem;
+}
+
+/* ===== FORM CONTAINER ===== */
+.formContainer {
+  padding: 2rem;
+}
+
+/* ===== ERROR MESSAGE ===== */
+.errorMsg {
+  background: #f8f8f8;
+  color: #000;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  border-left: 4px solid #000;
+  border-right: 4px solid #000;
+}
+
+:global(.dark-mode) .errorMsg {
+  background: #111;
+  color: #fff;
+  border-left-color: #fff;
+  border-right-color: #fff;
+}
+
+/* ===== FORM ===== */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.inputGroup {
+  position: relative;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #000;
+  font-size: 1.2rem;
+  z-index: 1;
+}
+
+:global(.dark-mode) .inputIcon {
+  color: #fff;
+}
+
+.input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  border: 2px solid #000;
+  font-size: 1rem;
+  transition: all 0.2s;
+  background: transparent;
+  color: #000;
+  box-sizing: border-box;
+}
+
+:global(.dark-mode) .input {
+  border-color: #fff;
+  color: #fff;
+}
+
+.input:focus {
+  outline: none;
+  background: #f8f8f8;
+}
+
+:global(.dark-mode) .input:focus {
+  background: #1a1a1a;
+}
+
+.input::placeholder {
+  color: #999;
+}
+
+.focusDance {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 1.2rem;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* ===== BUTTON ===== */
+.button {
+  background: #000;
+  color: #fff;
+  border: 2px solid #000;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  width: 100%;
+}
+
+:global(.dark-mode) .button {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
+.button:hover {
+  background: transparent;
+  color: #000;
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 #000;
+}
+
+:global(.dark-mode) .button:hover {
+  background: transparent;
+  color: #fff;
+  box-shadow: 4px 4px 0 #fff;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.buttonContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.buttonIcon {
+  font-size: 1.2rem;
+  opacity: 0.7;
+}
+
+/* ===== SPINNER ===== */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #fff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+:global(.dark-mode) .spinner {
+  border-color: #000;
+  border-top-color: transparent;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== REGISTER LINK ===== */
+.registerLink {
+  text-align: center;
+  margin: 2rem 0 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+:global(.dark-mode) .registerLink {
+  color: #999;
+}
+
+.registerLink a {
+  color: #000;
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+:global(.dark-mode) .registerLink a {
+  color: #fff;
+}
+
+.registerLink a:hover {
+  border-bottom-color: #000;
+}
+
+:global(.dark-mode) .registerLink a:hover {
+  border-bottom-color: #fff;
+}
+
+/* ===== FEATURES ===== */
+.features {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  color: #000;
+  opacity: 0.7;
+}
+
+:global(.dark-mode) .features {
+  color: #fff;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.feature span {
+  font-size: 1.1rem;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header h2 {
+    font-size: 1.8rem;
+  }
+
+  .formContainer {
+    padding: 1.5rem;
+  }
+
+  .features {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 1.5rem;
+  }
+
+  .header h2 {
+    font-size: 1.5rem;
+  }
+
+  .input {
+    padding: 0.875rem 0.875rem 0.875rem 2.5rem;
+  }
+
+  .inputIcon {
+    font-size: 1rem;
+    left: 0.75rem;
+  }
+
+  .focusDance {
+    display: none;
+  }
+}

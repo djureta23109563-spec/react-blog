@@ -1,0 +1,621 @@
+/* frontend/src/styles/AdminPage.module.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+.adminPage {
+  font-family: 'Inter', sans-serif;
+  color: #1a1a1a;
+  background: #ffffff;
+  min-height: 100vh;
+  padding: 2rem;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+:global(.dark-mode) .adminPage {
+  background: #0a0a0a;
+  color: #f0f0f0;
+}
+
+/* ===== HEADER ===== */
+.header {
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #000;
+}
+
+:global(.dark-mode) .header {
+  border-bottom-color: #fff;
+}
+
+.header h2 {
+  font-size: 2.5rem;
+  font-weight: 300;
+  margin: 0 0 0.5rem;
+  color: #000;
+}
+
+:global(.dark-mode) .header h2 {
+  color: #fff;
+}
+
+.header h2::before {
+  content: '👑';
+  margin-right: 0.5rem;
+  font-size: 2rem;
+  opacity: 0.5;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+:global(.dark-mode) .subtitle {
+  color: #999;
+}
+
+/* ===== STATS GRID ===== */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.statCard {
+  background: #f8f8f8;
+  border: 2px solid #000;
+  padding: 1.5rem;
+  transition: all 0.2s;
+}
+
+:global(.dark-mode) .statCard {
+  background: #111;
+  border-color: #fff;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 #000;
+}
+
+:global(.dark-mode) .statCard:hover {
+  box-shadow: 4px 4px 0 #fff;
+}
+
+.statIcon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+
+.statCard h3 {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+:global(.dark-mode) .statCard h3 {
+  color: #999;
+}
+
+.statValue {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 0.5rem;
+  line-height: 1;
+}
+
+:global(.dark-mode) .statValue {
+  color: #fff;
+}
+
+.statChange {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+}
+
+:global(.dark-mode) .statChange {
+  color: #999;
+}
+
+/* ===== TABS ===== */
+.tabsContainer {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0;
+}
+
+:global(.dark-mode) .tabsContainer {
+  border-bottom-color: #222;
+}
+
+.tabButton {
+  padding: 1rem 2rem;
+  background: none;
+  border: 2px solid transparent;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: -2px;
+}
+
+:global(.dark-mode) .tabButton {
+  color: #999;
+}
+
+.tabButton:hover {
+  color: #000;
+  border-color: #000 #000 transparent #000;
+}
+
+:global(.dark-mode) .tabButton:hover {
+  color: #fff;
+  border-color: #fff #fff transparent #fff;
+}
+
+.tabButton.active {
+  color: #000;
+  font-weight: 600;
+  border-color: #000 #000 transparent #000;
+}
+
+:global(.dark-mode) .tabButton.active {
+  color: #fff;
+  border-color: #fff #fff transparent #fff;
+}
+
+.tabCount {
+  background: #f0f0f0;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+:global(.dark-mode) .tabCount {
+  background: #222;
+  color: #999;
+}
+
+.tabButton.active .tabCount {
+  background: #000;
+  color: #fff;
+}
+
+:global(.dark-mode) .tabButton.active .tabCount {
+  background: #fff;
+  color: #000;
+}
+
+/* ===== TABLE CONTAINER ===== */
+.tableContainer {
+  background: #fff;
+  border: 2px solid #000;
+  overflow: hidden;
+}
+
+:global(.dark-mode) .tableContainer {
+  background: #0a0a0a;
+  border-color: #fff;
+}
+
+.tableHeader {
+  padding: 1.5rem;
+  border-bottom: 2px solid #000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f8f8;
+}
+
+:global(.dark-mode) .tableHeader {
+  background: #111;
+  border-bottom-color: #fff;
+}
+
+.tableHeader h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #000;
+}
+
+:global(.dark-mode) .tableHeader h3 {
+  color: #fff;
+}
+
+.searchBox {
+  padding: 0.5rem 1rem;
+  border: 2px solid #000;
+  font-size: 0.95rem;
+  width: 250px;
+  transition: all 0.2s;
+  background: transparent;
+  color: #000;
+}
+
+:global(.dark-mode) .searchBox {
+  border-color: #fff;
+  color: #fff;
+}
+
+.searchBox:focus {
+  outline: none;
+  background: #f8f8f8;
+}
+
+:global(.dark-mode) .searchBox:focus {
+  background: #1a1a1a;
+}
+
+/* ===== TABLE ===== */
+.adminTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.adminTable th {
+  text-align: left;
+  padding: 1rem 1.5rem;
+  background: #000;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+:global(.dark-mode) .adminTable th {
+  background: #fff;
+  color: #000;
+}
+
+.adminTable td {
+  padding: 1rem 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+:global(.dark-mode) .adminTable td {
+  border-bottom-color: #222;
+  color: #ccc;
+}
+
+.adminTable tbody tr {
+  transition: all 0.2s;
+}
+
+.adminTable tbody tr:hover {
+  background: #f8f8f8;
+}
+
+:global(.dark-mode) .adminTable tbody tr:hover {
+  background: #111;
+}
+
+.adminTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ===== STATUS BADGES ===== */
+.statusBadge {
+  padding: 0.25rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: inline-block;
+  text-align: center;
+  min-width: 80px;
+  border: 2px solid transparent;
+}
+
+.statusBadge.active {
+  background: #fff;
+  color: #000;
+  border-color: #000;
+}
+
+:global(.dark-mode) .statusBadge.active {
+  background: #0a0a0a;
+  color: #fff;
+  border-color: #fff;
+}
+
+.statusBadge.inactive {
+  background: #f8f8f8;
+  color: #999;
+  border-color: #ccc;
+}
+
+:global(.dark-mode) .statusBadge.inactive {
+  background: #111;
+  color: #666;
+  border-color: #333;
+}
+
+.statusBadge.published {
+  background: #fff;
+  color: #000;
+  border-color: #000;
+}
+
+:global(.dark-mode) .statusBadge.published {
+  background: #0a0a0a;
+  color: #fff;
+  border-color: #fff;
+}
+
+.statusBadge.removed {
+  background: #f8f8f8;
+  color: #999;
+  border-color: #ccc;
+  text-decoration: line-through;
+}
+
+:global(.dark-mode) .statusBadge.removed {
+  background: #111;
+  color: #666;
+  border-color: #333;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actionButton {
+  padding: 0.5rem 1rem;
+  border: 2px solid #000;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  color: #000;
+}
+
+:global(.dark-mode) .actionButton {
+  border-color: #fff;
+  color: #fff;
+}
+
+.actionButton:hover {
+  background: #000;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 2px 2px 0 #000;
+}
+
+:global(.dark-mode) .actionButton:hover {
+  background: #fff;
+  color: #000;
+  box-shadow: 2px 2px 0 #fff;
+}
+
+.actionButton.danger {
+  border-color: #000;
+  color: #000;
+}
+
+:global(.dark-mode) .actionButton.danger {
+  border-color: #fff;
+  color: #fff;
+}
+
+.actionButton.danger:hover {
+  background: #000;
+  color: #fff;
+}
+
+:global(.dark-mode) .actionButton.danger:hover {
+  background: #fff;
+  color: #000;
+}
+
+.actionButton.success {
+  border-color: #000;
+  color: #000;
+}
+
+:global(.dark-mode) .actionButton.success {
+  border-color: #fff;
+  color: #fff;
+}
+
+.actionButton.success:hover {
+  background: #000;
+  color: #fff;
+}
+
+:global(.dark-mode) .actionButton.success:hover {
+  background: #fff;
+  color: #000;
+}
+
+/* ===== LOADING STATE ===== */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f0f0f0;
+  border-top: 3px solid #000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+:global(.dark-mode) .loadingSpinner {
+  border-color: #222;
+  border-top-color: #fff;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading p {
+  color: #666;
+  font-size: 1rem;
+}
+
+:global(.dark-mode) .loading p {
+  color: #999;
+}
+
+/* ===== ERROR STATE ===== */
+.error {
+  text-align: center;
+  padding: 2rem;
+  background: #f8f8f8;
+  border-left: 4px solid #000;
+  border-right: 4px solid #000;
+  margin: 2rem 0;
+}
+
+:global(.dark-mode) .error {
+  background: #111;
+  border-left-color: #fff;
+  border-right-color: #fff;
+}
+
+.error p {
+  color: #000;
+  margin-bottom: 1.5rem;
+}
+
+:global(.dark-mode) .error p {
+  color: #fff;
+}
+
+.error button {
+  padding: 0.5rem 1.5rem;
+  background: #000;
+  color: #fff;
+  border: 2px solid #000;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+:global(.dark-mode) .error button {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
+.error button:hover {
+  background: transparent;
+  color: #000;
+}
+
+:global(.dark-mode) .error button:hover {
+  background: transparent;
+  color: #fff;
+}
+
+/* ===== EMPTY STATE ===== */
+.emptyState {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  font-style: italic;
+}
+
+:global(.dark-mode) .emptyState {
+  color: #999;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .adminPage {
+    padding: 1.5rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .adminPage {
+    padding: 1rem;
+  }
+
+  .header h2 {
+    font-size: 2rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .tableHeader {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .searchBox {
+    width: 100%;
+  }
+
+  .tabsContainer {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .tabButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .adminTable {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actionButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h2 {
+    font-size: 1.8rem;
+  }
+
+  .statCard {
+    padding: 1rem;
+  }
+
+  .statValue {
+    font-size: 1.8rem;
+  }
+}

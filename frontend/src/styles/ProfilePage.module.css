@@ -1,0 +1,593 @@
+/* frontend/src/styles/ProfilePage.module.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+.profilePage {
+  font-family: 'Inter', sans-serif;
+  color: #1a1a1a;
+  background: #ffffff;
+  min-height: 100vh;
+  padding: 2rem;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+:global(.dark-mode) .profilePage {
+  background: #0a0a0a;
+  color: #f0f0f0;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ===== HEADER ===== */
+.header {
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #000;
+}
+
+:global(.dark-mode) .header {
+  border-bottom-color: #fff;
+}
+
+.header h2 {
+  font-size: 2.5rem;
+  font-weight: 300;
+  margin: 0 0 0.5rem;
+  color: #000;
+}
+
+:global(.dark-mode) .header h2 {
+  color: #fff;
+}
+
+.header h2::before {
+  content: '👤';
+  margin-right: 0.5rem;
+  opacity: 0.5;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+:global(.dark-mode) .subtitle {
+  color: #999;
+}
+
+/* ===== MESSAGES ===== */
+.successMsg,
+.errorMsg {
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-left: 4px solid;
+  border-right: 4px solid;
+  font-weight: 500;
+}
+
+.successMsg {
+  background: #f8f8f8;
+  color: #000;
+  border-left-color: #000;
+  border-right-color: #000;
+}
+
+:global(.dark-mode) .successMsg {
+  background: #111;
+  color: #fff;
+  border-left-color: #fff;
+  border-right-color: #fff;
+}
+
+.errorMsg {
+  background: #f8f8f8;
+  color: #000;
+  border-left-color: #000;
+  border-right-color: #000;
+}
+
+:global(.dark-mode) .errorMsg {
+  background: #111;
+  color: #fff;
+  border-left-color: #fff;
+  border-right-color: #fff;
+}
+
+/* ===== PROFILE GRID ===== */
+.profileGrid {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 2rem;
+}
+
+/* ===== PROFILE CARD ===== */
+.profileCard {
+  background: #ffffff;
+  border: 2px solid #000;
+  padding: 2rem;
+  text-align: center;
+  height: fit-content;
+  position: sticky;
+  top: 2rem;
+  box-shadow: 8px 8px 0 #000;
+  transition: all 0.2s;
+}
+
+:global(.dark-mode) .profileCard {
+  background: #0a0a0a;
+  border-color: #fff;
+  box-shadow: 8px 8px 0 #fff;
+}
+
+.profileCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 10px 10px 0 #000;
+}
+
+:global(.dark-mode) .profileCard:hover {
+  box-shadow: 10px 10px 0 #fff;
+}
+
+/* ===== AVATAR ===== */
+.avatarContainer {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 1.5rem;
+}
+
+.avatar,
+.defaultAvatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #000;
+  transition: all 0.2s;
+}
+
+:global(.dark-mode) .avatar,
+:global(.dark-mode) .defaultAvatar {
+  border-color: #fff;
+}
+
+.defaultAvatar {
+  background: #f8f8f8;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 600;
+}
+
+:global(.dark-mode) .defaultAvatar {
+  background: #111;
+  color: #fff;
+}
+
+.avatarOverlay {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 40px;
+  height: 40px;
+  background: #000;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 3px solid #fff;
+  transition: all 0.2s;
+  font-size: 1.2rem;
+}
+
+:global(.dark-mode) .avatarOverlay {
+  background: #fff;
+  color: #000;
+  border-color: #000;
+}
+
+.avatarOverlay:hover {
+  transform: scale(1.1);
+  background: #fff;
+  color: #000;
+}
+
+:global(.dark-mode) .avatarOverlay:hover {
+  background: #000;
+  color: #fff;
+}
+
+/* ===== PROFILE INFO ===== */
+.profileName {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #000;
+  margin: 0 0 0.5rem;
+}
+
+:global(.dark-mode) .profileName {
+  color: #fff;
+}
+
+.profileEmail {
+  color: #666;
+  margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  background: #f8f8f8;
+  padding: 0.5rem 1rem;
+  border: 2px solid #f0f0f0;
+}
+
+:global(.dark-mode) .profileEmail {
+  color: #999;
+  background: #111;
+  border-color: #222;
+}
+
+.profileRole {
+  display: inline-block;
+  padding: 0.35rem 1.5rem;
+  background: #f8f8f8;
+  color: #000;
+  border: 2px solid #000;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+:global(.dark-mode) .profileRole {
+  background: #111;
+  color: #fff;
+  border-color: #fff;
+}
+
+.profileRole.admin {
+  background: #000;
+  color: #fff;
+}
+
+:global(.dark-mode) .profileRole.admin {
+  background: #fff;
+  color: #000;
+}
+
+.profileBio {
+  background: #f8f8f8;
+  padding: 1rem;
+  color: #444;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 1rem 0;
+  text-align: left;
+  border-left: 4px solid #000;
+  border-right: 4px solid #000;
+}
+
+:global(.dark-mode) .profileBio {
+  background: #111;
+  color: #ccc;
+  border-left-color: #fff;
+  border-right-color: #fff;
+}
+
+.statBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #666;
+  font-size: 0.85rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid #f0f0f0;
+}
+
+:global(.dark-mode) .statBadge {
+  color: #999;
+  border-top-color: #222;
+}
+
+/* ===== FORMS CONTAINER ===== */
+.formsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.formCard {
+  background: #ffffff;
+  border: 2px solid #000;
+  padding: 2rem;
+  box-shadow: 8px 8px 0 #000;
+  transition: all 0.2s;
+}
+
+:global(.dark-mode) .formCard {
+  background: #0a0a0a;
+  border-color: #fff;
+  box-shadow: 8px 8px 0 #fff;
+}
+
+.formCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 10px 10px 0 #000;
+}
+
+:global(.dark-mode) .formCard:hover {
+  box-shadow: 10px 10px 0 #fff;
+}
+
+.formHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #000;
+}
+
+:global(.dark-mode) .formHeader {
+  border-bottom-color: #fff;
+}
+
+.formHeader h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: #000;
+}
+
+:global(.dark-mode) .formHeader h3 {
+  color: #fff;
+}
+
+.formIcon {
+  font-size: 1.3rem;
+  opacity: 0.7;
+}
+
+/* ===== FORM GROUPS ===== */
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #000;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+:global(.dark-mode) .label {
+  color: #fff;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #000;
+  font-size: 1rem;
+  transition: all 0.2s;
+  background: transparent;
+  color: #000;
+}
+
+:global(.dark-mode) .input,
+:global(.dark-mode) .textarea {
+  border-color: #fff;
+  color: #fff;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  background: #f8f8f8;
+}
+
+:global(.dark-mode) .input:focus,
+:global(.dark-mode) .textarea:focus {
+  background: #1a1a1a;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* ===== FILE INPUT ===== */
+.fileInput {
+  width: 100%;
+  padding: 0.75rem;
+  background: #f8f8f8;
+  border: 2px dashed #000;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+:global(.dark-mode) .fileInput {
+  background: #111;
+  border-color: #fff;
+}
+
+.fileInput:hover {
+  border-style: solid;
+}
+
+.fileInput::-webkit-file-upload-button {
+  background: #000;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border: none;
+  margin-right: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+:global(.dark-mode) .fileInput::-webkit-file-upload-button {
+  background: #fff;
+  color: #000;
+}
+
+.fileInput::-webkit-file-upload-button:hover {
+  background: transparent;
+  color: #000;
+  box-shadow: inset 0 0 0 2px #000;
+}
+
+:global(.dark-mode) .fileInput::-webkit-file-upload-button:hover {
+  background: transparent;
+  color: #fff;
+  box-shadow: inset 0 0 0 2px #fff;
+}
+
+/* ===== BUTTON ===== */
+.button {
+  background: #000;
+  color: #fff;
+  border: 2px solid #000;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+:global(.dark-mode) .button {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
+.button:hover {
+  background: transparent;
+  color: #000;
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 #000;
+}
+
+:global(.dark-mode) .button:hover {
+  background: transparent;
+  color: #fff;
+  box-shadow: 4px 4px 0 #fff;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ===== LOADING STATE ===== */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f0f0f0;
+  border-top: 3px solid #000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+:global(.dark-mode) .loadingSpinner {
+  border-color: #222;
+  border-top-color: #fff;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading p {
+  color: #666;
+  font-size: 1rem;
+}
+
+:global(.dark-mode) .loading p {
+  color: #999;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 968px) {
+  .profileGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .profileCard {
+    position: static;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .profilePage {
+    padding: 1rem;
+  }
+
+  .header h2 {
+    font-size: 2rem;
+  }
+
+  .formCard {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h2 {
+    font-size: 1.8rem;
+  }
+
+  .avatarContainer {
+    width: 120px;
+    height: 120px;
+  }
+
+  .defaultAvatar {
+    font-size: 2.5rem;
+  }
+
+  .avatarOverlay {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+
+  .profileName {
+    font-size: 1.3rem;
+  }
+}
