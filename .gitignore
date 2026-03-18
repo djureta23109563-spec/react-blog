@@ -22,6 +22,3 @@ Thumbs.db
 
 # VSCode
 .vscode/
-
-# Uploads
-backend/uploads/
