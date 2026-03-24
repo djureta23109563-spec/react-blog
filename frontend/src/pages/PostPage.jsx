@@ -20,6 +20,9 @@ const PostPage = () => {
   const [commentBody, setCommentBody] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
 
+  // Get backend URL from environment variable
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+
   useEffect(() => {
     if (id) {
       fetchPost();
@@ -145,7 +148,7 @@ const PostPage = () => {
               <div className={styles.authorAvatar}>
                 {post.author?.profilePic ? (
                   <img 
-                    src={`http://localhost:5000/uploads/${post.author.profilePic}`}
+                    src={`${BACKEND_URL}/uploads/${post.author.profilePic}`}
                     alt={post.author.name}
                   />
                 ) : (
@@ -187,7 +190,7 @@ const PostPage = () => {
         {post.image && (
           <div className={styles.postImageContainer}>
             <img 
-              src={`http://localhost:5000/uploads/${post.image}`}
+              src={`${BACKEND_URL}/uploads/${post.image}`}
               alt={post.title}
               className={styles.postImage}
             />
@@ -243,7 +246,7 @@ const PostPage = () => {
                     <div className={styles.commentAvatar}>
                       {comment.author?.profilePic ? (
                         <img 
-                          src={`http://localhost:5000/uploads/${comment.author.profilePic}`}
+                          src={`${BACKEND_URL}/uploads/${comment.author.profilePic}`}
                           alt={comment.author.name}
                         />
                       ) : (

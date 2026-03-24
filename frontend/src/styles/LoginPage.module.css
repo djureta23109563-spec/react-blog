@@ -5,101 +5,357 @@
 .loginPage {
   min-height: 100vh;
   width: 100%;
-  background: #ffffff;
+  position: relative;
   font-family: 'Inter', sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.3s;
+  background: #ffffff;
+  overflow: hidden;
 }
 
 :global(.dark-mode) .loginPage {
   background: #0a0a0a;
 }
 
-/* ===== CONTAINER ===== */
-.container {
-  max-width: 500px;
-  width: 100%;
-  padding: 2rem;
+/* ===== BACKGROUND PATTERN ===== */
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
 }
 
-/* ===== CARD ===== */
+.bgPattern {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(#000 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.03;
+}
+
+:global(.dark-mode) .bgPattern {
+  background-image: radial-gradient(#fff 1px, transparent 1px);
+  opacity: 0.03;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+}
+
+/* ===== CONTENT GRID ===== */
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  width: 100%;
+  align-items: center;
+}
+
+/* ===== WELCOME SECTION ===== */
+.welcomeSection {
+  padding-right: 2rem;
+  animation: slideInLeft 0.6s ease;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.welcomeContent {
+  max-width: 450px;
+}
+
+.welcomeTitle {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  color: #000;
+  line-height: 1.2;
+}
+
+:global(.dark-mode) .welcomeTitle {
+  color: #fff;
+}
+
+.welcomeTitle span {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+:global(.dark-mode) .welcomeTitle span {
+  color: #999;
+}
+
+.welcomeText {
+  font-size: 1.1rem;
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+:global(.dark-mode) .welcomeText {
+  color: #ccc;
+}
+
+/* ===== TESTIMONIAL ===== */
+.testimonial {
+  background: #f8f8f8;
+  border: 2px solid #000;
+  box-shadow: 6px 6px 0 #000;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+:global(.dark-mode) .testimonial {
+  background: #111;
+  border-color: #fff;
+  box-shadow: 6px 6px 0 #fff;
+}
+
+.testimonialQuote {
+  font-size: 4rem;
+  font-family: serif;
+  color: #000;
+  opacity: 0.1;
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  line-height: 1;
+}
+
+:global(.dark-mode) .testimonialQuote {
+  color: #fff;
+}
+
+.testimonialText {
+  font-size: 1rem;
+  font-style: italic;
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+:global(.dark-mode) .testimonialText {
+  color: #ccc;
+}
+
+.testimonialAuthor {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.authorName {
+  font-weight: 600;
+  color: #000;
+}
+
+:global(.dark-mode) .authorName {
+  color: #fff;
+}
+
+.authorRole {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+:global(.dark-mode) .authorRole {
+  color: #999;
+}
+
+/* ===== STATS ===== */
+.stats {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem;
+  background: #fff;
+  border: 2px solid #000;
+  box-shadow: 4px 4px 0 #000;
+}
+
+:global(.dark-mode) .stats {
+  background: #0a0a0a;
+  border-color: #fff;
+  box-shadow: 4px 4px 0 #fff;
+}
+
+.statItem {
+  flex: 1;
+  text-align: center;
+}
+
+.statNumber {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 0.25rem;
+}
+
+:global(.dark-mode) .statNumber {
+  color: #fff;
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+:global(.dark-mode) .statLabel {
+  color: #999;
+}
+
+.statDivider {
+  width: 2px;
+  height: 30px;
+  background: #000;
+  opacity: 0.2;
+}
+
+:global(.dark-mode) .statDivider {
+  background: #fff;
+  opacity: 0.2;
+}
+
+/* ===== FORM SECTION ===== */
+.formSection {
+  animation: slideInRight 0.6s ease;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .card {
   background: #ffffff;
   border: 2px solid #000;
-  box-shadow: 8px 8px 0 #000;
+  box-shadow: 10px 10px 0 #000;
   overflow: hidden;
-  transition: all 0.2s;
 }
 
 :global(.dark-mode) .card {
   background: #0a0a0a;
   border-color: #fff;
-  box-shadow: 8px 8px 0 #fff;
+  box-shadow: 10px 10px 0 #fff;
 }
 
-/* ===== HEADER ===== */
-.header {
-  background: #000;
-  padding: 2rem;
-  text-align: center;
-  color: #fff;
+/* ===== CARD HEADER ===== */
+.cardHeader {
+  background: #f8f8f8;
+  padding: 2rem 2rem 1.5rem;
   border-bottom: 2px solid #000;
+  text-align: center;
 }
 
-:global(.dark-mode) .header {
-  background: #fff;
-  color: #000;
+:global(.dark-mode) .cardHeader {
+  background: #111;
   border-bottom-color: #fff;
 }
 
-.header h2 {
+.cardHeader h2 {
   font-size: 2rem;
   font-weight: 300;
   margin: 0 0 0.5rem;
+  color: #000;
 }
 
-.header h2 span {
-  font-weight: 700;
+:global(.dark-mode) .cardHeader h2 {
+  color: #fff;
 }
 
-.header p {
-  margin: 0 0 0.5rem;
-  opacity: 0.8;
-  font-size: 0.95rem;
+.cardHeader p {
+  color: #666;
+  margin: 0 0 1rem;
 }
 
-.danceEmoji {
+:global(.dark-mode) .cardHeader p {
+  color: #999;
+}
+
+.headerDecoration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.decorationLine {
+  width: 40px;
+  height: 2px;
+  background: #000;
+}
+
+:global(.dark-mode) .decorationLine {
+  background: #fff;
+}
+
+.decorationIcon {
   font-size: 1.2rem;
-  opacity: 0.5;
-  margin-top: 0.5rem;
+  color: #666;
 }
 
-/* ===== FORM CONTAINER ===== */
-.formContainer {
+:global(.dark-mode) .decorationIcon {
+  color: #999;
+}
+
+/* ===== CARD BODY ===== */
+.cardBody {
   padding: 2rem;
 }
 
-/* ===== ERROR MESSAGE ===== */
-.errorMsg {
-  background: #f8f8f8;
-  color: #000;
-  padding: 1rem;
-  margin-bottom: 2rem;
+/* ===== ALERT ===== */
+.alertError {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-size: 0.95rem;
-  border-left: 4px solid #000;
-  border-right: 4px solid #000;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background: #f8f8f8;
+  border: 2px solid #000;
+  border-left-width: 6px;
+  color: #000;
 }
 
-:global(.dark-mode) .errorMsg {
-  background: #111;
+:global(.dark-mode) .alertError {
+  background: #1a1a1a;
+  border-color: #fff;
   color: #fff;
-  border-left-color: #fff;
-  border-right-color: #fff;
+}
+
+.alertIcon {
+  font-size: 1.2rem;
 }
 
 /* ===== FORM ===== */
@@ -107,35 +363,47 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
-.inputGroup {
-  position: relative;
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.inputIcon {
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
+.label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: #000;
-  font-size: 1.2rem;
-  z-index: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-:global(.dark-mode) .inputIcon {
+:global(.dark-mode) .label {
   color: #fff;
+}
+
+.labelIcon {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+.inputWrapper {
+  position: relative;
 }
 
 .input {
   width: 100%;
-  padding: 1rem 1rem 1rem 3rem;
+  padding: 0.875rem 1rem;
   border: 2px solid #000;
   font-size: 1rem;
-  transition: all 0.2s;
   background: transparent;
   color: #000;
-  box-sizing: border-box;
+  transition: all 0.2s;
 }
 
 :global(.dark-mode) .input {
@@ -152,71 +420,155 @@
   background: #1a1a1a;
 }
 
-.input::placeholder {
+.inputFocus {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #000;
+  transition: width 0.2s;
+}
+
+.input:focus ~ .inputFocus {
+  width: 100%;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #666;
+  padding: 0.25rem;
+  transition: all 0.2s;
+}
+
+.passwordToggle:hover {
+  color: #000;
+}
+
+:global(.dark-mode) .passwordToggle:hover {
+  color: #fff;
+}
+
+/* ===== FORM OPTIONS ===== */
+.formOptions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.5rem 0;
+}
+
+.rememberMe {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #000;
+  background: transparent;
+  cursor: pointer;
+  accent-color: #000;
+}
+
+:global(.dark-mode) .checkbox {
+  border-color: #fff;
+  accent-color: #fff;
+}
+
+.checkboxLabel {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+:global(.dark-mode) .checkboxLabel {
   color: #999;
 }
 
-.focusDance {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  font-size: 1.2rem;
-  opacity: 0.3;
-  pointer-events: none;
+.forgotLink {
+  color: #000;
+  text-decoration: none;
+  font-size: 0.9rem;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
 }
 
-/* ===== BUTTON ===== */
-.button {
+:global(.dark-mode) .forgotLink {
+  color: #fff;
+}
+
+.forgotLink:hover {
+  border-bottom-color: #000;
+}
+
+:global(.dark-mode) .forgotLink:hover {
+  border-bottom-color: #fff;
+}
+
+/* ===== SUBMIT BUTTON ===== */
+.submitButton {
+  padding: 1rem;
   background: #000;
   color: #fff;
   border: 2px solid #000;
-  padding: 1rem;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  margin-top: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  width: 100%;
-}
-
-:global(.dark-mode) .button {
-  background: #fff;
-  color: #000;
-  border-color: #fff;
-}
-
-.button:hover {
-  background: transparent;
-  color: #000;
-  transform: translateY(-2px);
-  box-shadow: 4px 4px 0 #000;
-}
-
-:global(.dark-mode) .button:hover {
-  background: transparent;
-  color: #fff;
-  box-shadow: 4px 4px 0 #fff;
-}
-
-.button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.buttonContent {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  box-shadow: 4px 4px 0 #000;
+}
+
+:global(.dark-mode) .submitButton {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+  box-shadow: 4px 4px 0 #fff;
+}
+
+.submitButton:hover {
+  background: transparent;
+  color: #000;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #000;
+}
+
+:global(.dark-mode) .submitButton:hover {
+  background: transparent;
+  color: #fff;
+  box-shadow: 6px 6px 0 #fff;
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 4px 4px 0 #000;
+}
+
+:global(.dark-mode) .submitButton:disabled {
+  box-shadow: 4px 4px 0 #fff;
 }
 
 .buttonIcon {
   font-size: 1.2rem;
-  opacity: 0.7;
+  transition: transform 0.2s;
+}
+
+.submitButton:hover .buttonIcon {
+  transform: translateX(4px);
 }
 
 /* ===== SPINNER ===== */
@@ -238,104 +590,262 @@
   to { transform: rotate(360deg); }
 }
 
-/* ===== REGISTER LINK ===== */
-.registerLink {
+/* ===== REGISTER PROMPT ===== */
+.registerPrompt {
   text-align: center;
-  margin: 2rem 0 0;
-  color: #666;
-  font-size: 0.95rem;
+  padding: 1.5rem 0;
+  border-top: 2px solid #f0f0f0;
 }
 
-:global(.dark-mode) .registerLink {
+:global(.dark-mode) .registerPrompt {
+  border-top-color: #222;
+}
+
+.registerPrompt p {
+  color: #666;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+:global(.dark-mode) .registerPrompt p {
   color: #999;
 }
 
-.registerLink a {
+.registerLink {
   color: #000;
-  text-decoration: none;
   font-weight: 600;
+  text-decoration: none;
+  border-bottom: 2px solid #000;
+  transition: all 0.2s;
   margin-left: 0.5rem;
-  border-bottom: 2px solid transparent;
-  transition: border-color 0.2s;
 }
 
-:global(.dark-mode) .registerLink a {
+:global(.dark-mode) .registerLink {
   color: #fff;
-}
-
-.registerLink a:hover {
-  border-bottom-color: #000;
-}
-
-:global(.dark-mode) .registerLink a:hover {
   border-bottom-color: #fff;
 }
 
-/* ===== FEATURES ===== */
-.features {
-  margin-top: 2rem;
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  color: #000;
-  opacity: 0.7;
+.registerLink:hover {
+  color: #666;
+  border-bottom-color: #666;
 }
 
-:global(.dark-mode) .features {
+/* ===== DEMO CREDENTIALS ===== */
+.demoCredentials {
+  background: #f8f8f8;
+  border: 2px solid #e0e0e0;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+:global(.dark-mode) .demoCredentials {
+  background: #1a1a1a;
+  border-color: #333;
+}
+
+.demoTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #666;
+  margin: 0 0 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+:global(.dark-mode) .demoTitle {
+  color: #999;
+}
+
+.demoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.demoItem {
+  padding: 0.75rem;
+  background: #fff;
+  border: 2px solid #000;
+  font-size: 0.85rem;
+}
+
+:global(.dark-mode) .demoItem {
+  background: #0a0a0a;
+  border-color: #fff;
+}
+
+.demoRole {
+  display: block;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 0.25rem;
+}
+
+:global(.dark-mode) .demoRole {
   color: #fff;
 }
 
-.feature {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
+.demoEmail,
+.demoPass {
+  display: block;
+  color: #666;
+  font-size: 0.8rem;
+  word-break: break-all;
 }
 
-.feature span {
-  font-size: 1.1rem;
+:global(.dark-mode) .demoEmail,
+:global(.dark-mode) .demoPass {
+  color: #999;
+}
+
+/* ===== CARD FOOTER ===== */
+.cardFooter {
+  padding: 1.5rem 2rem;
+  background: #f8f8f8;
+  border-top: 2px solid #000;
+  text-align: center;
+}
+
+:global(.dark-mode) .cardFooter {
+  background: #111;
+  border-top-color: #fff;
+}
+
+.cardFooter p {
+  color: #666;
+  font-size: 0.85rem;
+  margin: 0 0 0.5rem;
+}
+
+:global(.dark-mode) .cardFooter p {
+  color: #999;
+}
+
+.footerLinks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.footerLinks a {
+  color: #000;
+  text-decoration: none;
+  font-size: 0.85rem;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+:global(.dark-mode) .footerLinks a {
+  color: #fff;
+}
+
+.footerLinks a:hover {
+  border-bottom-color: #000;
+}
+
+:global(.dark-mode) .footerLinks a:hover {
+  border-bottom-color: #fff;
+}
+
+.separator {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+:global(.dark-mode) .separator {
+  color: #999;
 }
 
 /* ===== RESPONSIVE ===== */
+@media (max-width: 968px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .welcomeSection {
+    padding-right: 0;
+    text-align: center;
+  }
+
+  .welcomeContent {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .testimonial {
+    text-align: left;
+  }
+
+  .stats {
+    justify-content: center;
+  }
+
+  .formSection {
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
   }
 
-  .header h2 {
-    font-size: 1.8rem;
+  .welcomeTitle {
+    font-size: 2.5rem;
   }
 
-  .formContainer {
+  .stats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .statDivider {
+    width: 80px;
+    height: 2px;
+  }
+
+  .cardHeader {
     padding: 1.5rem;
   }
 
-  .features {
+  .cardBody {
+    padding: 1.5rem;
+  }
+
+  .demoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .formOptions {
     flex-direction: column;
-    align-items: center;
     gap: 1rem;
+    align-items: flex-start;
   }
 }
 
 @media (max-width: 480px) {
-  .header {
-    padding: 1.5rem;
+  .welcomeTitle {
+    font-size: 2rem;
   }
 
-  .header h2 {
-    font-size: 1.5rem;
+  .cardHeader h2 {
+    font-size: 1.8rem;
   }
 
-  .input {
-    padding: 0.875rem 0.875rem 0.875rem 2.5rem;
+  .cardFooter {
+    padding: 1rem;
   }
 
-  .inputIcon {
-    font-size: 1rem;
-    left: 0.75rem;
+  .footerLinks {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
-  .focusDance {
+  .separator {
     display: none;
   }
 }

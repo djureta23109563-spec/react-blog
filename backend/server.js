@@ -21,6 +21,14 @@ console.log('✅ commentRoutes loaded:', typeof commentRoutes);
 const adminRoutes = require('./routes/admin.routes');
 console.log('✅ adminRoutes loaded:', typeof adminRoutes);
 
+// Import message routes
+const messageRoutes = require('./routes/message.routes');
+console.log('✅ messageRoutes loaded:', typeof messageRoutes);
+
+// Import deleted post routes
+const deletedPostRoutes = require('./routes/deletedPost.routes');
+console.log('✅ deletedPostRoutes loaded:', typeof deletedPostRoutes);
+
 const app = express();
 
 connectDB();
@@ -28,7 +36,9 @@ connectDB();
 // ── Middleware ─────────────────────────────────────────────────
 app.use(cors({
     origin: function(origin, callback) {
+        // Define allowed origins
         const allowedOrigins = [
+            // Local development ports
             'http://localhost:3000',
             'http://localhost:5173',
             'http://localhost:5174',
@@ -36,14 +46,20 @@ app.use(cors({
             'http://localhost:5176',
             'http://localhost:5177',
             'http://localhost:5178',
-            'localhost:5179',
+            'http://localhost:5179',
             'http://localhost:5180',
             'http://localhost:5181/',
-            'http://localhost:5182/'
+            'http://localhost:5182/',
+            
+            // 🔴 AFTER VERCEL DEPLOYMENT - ADD YOUR LIVE URL HERE 🔴
+            // Example: 'https://dancefolio.vercel.app'
+            // You will add this after deploying to Vercel
         ];
         
+        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
         
+        // Check if origin is allowed
         if (allowedOrigins.indexOf(origin) !== -1 || origin.startsWith('http://localhost:')) {
             callback(null, true);
         } else {
@@ -61,6 +77,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/deleted-posts', deletedPostRoutes);
 
 // ── Health Check ──────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
@@ -70,10 +88,6 @@ app.get('/api/health', (req, res) => {
         mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
     });
 });
-
-// ── 404 Handler - REMOVED app.all('*') ────────────────────────
-// Instead of catching all routes, we'll let Express handle 404s naturally
-// This means if a route doesn't exist, it will just return 404 with no message
 
 // ── Error Handler ─────────────────────────────────────────────
 app.use((err, req, res, next) => {

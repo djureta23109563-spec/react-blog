@@ -13,47 +13,60 @@ function Navbar() {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate('/login');
   };
 
   return (
     <header className={styles.header}>
       <div className={styles.container}>
+        {/* Custom Logo - No text, just icon + brand name styled */}
         <Link to="/home" className={styles.logo}>
-          <span className={styles.logoIcon}>💃</span>
-          DanceFolio
-          <span className={styles.logoIcon}>🕺</span>
+          <div className={styles.logoMark}>
+            <svg className={styles.logoSvg} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="2" fill="none"/>
+              <path d="M12 16 L20 12 L28 16 L20 28 Z" stroke="currentColor" strokeWidth="2" fill="none"/>
+              <circle cx="20" cy="20" r="3" fill="currentColor"/>
+              <path d="M20 12 L20 8 M20 32 L20 28" stroke="currentColor" strokeWidth="2"/>
+              <path d="M12 16 L8 14 M28 16 L32 14" stroke="currentColor" strokeWidth="2"/>
+              <path d="M16 22 L14 26 M24 22 L26 26" stroke="currentColor" strokeWidth="2"/>
+            </svg>
+          </div>
+          <div className={styles.logoText}>
+            <span className={styles.logoName}>DanceFolio</span>
+            <span className={styles.logoTagline}>Movement & Expression</span>
+          </div>
         </Link>
 
+        {/* Navigation Menu */}
         <nav className={styles.nav}>
           <ul className={styles.navList}>
-            {/* Home Link - NOW POINTS TO /HOME */}
             <li>
               <Link 
                 to="/home" 
-                className={location.pathname === '/home' ? styles.active : ''}
+                className={`${styles.navLink} ${location.pathname === '/home' ? styles.active : ''}`}
               >
-                Home
+                <span className={styles.navIcon}>🏠</span>
+                <span>Home</span>
               </Link>
             </li>
             
-            {/* About Link */}
             <li>
               <Link 
                 to="/about" 
-                className={location.pathname === '/about' ? styles.active : ''}
+                className={`${styles.navLink} ${location.pathname === '/about' ? styles.active : ''}`}
               >
-                About
+                <span className={styles.navIcon}>📖</span>
+                <span>About</span>
               </Link>
             </li>
 
-            {/* Contact Link */}
             <li>
               <Link 
                 to="/contact" 
-                className={location.pathname === '/contact' ? styles.active : ''}
+                className={`${styles.navLink} ${location.pathname === '/contact' ? styles.active : ''}`}
               >
-                Contact
+                <span className={styles.navIcon}>✉️</span>
+                <span>Contact</span>
               </Link>
             </li>
 
@@ -63,9 +76,10 @@ function Navbar() {
                 <li>
                   <Link 
                     to="/login"
-                    className={location.pathname === '/login' ? styles.active : ''}
+                    className={`${styles.navLink} ${location.pathname === '/login' ? styles.active : ''}`}
                   >
-                    Login
+                    <span className={styles.navIcon}>🔐</span>
+                    <span>Login</span>
                   </Link>
                 </li>
                 <li>
@@ -73,7 +87,8 @@ function Navbar() {
                     to="/register"
                     className={`${styles.signupLink} ${location.pathname === '/register' ? styles.active : ''}`}
                   >
-                    Sign Up
+                    <span className={styles.navIcon}>✨</span>
+                    <span>Sign Up</span>
                   </Link>
                 </li>
               </>
@@ -83,9 +98,10 @@ function Navbar() {
                 <li>
                   <Link 
                     to="/create-post"
-                    className={location.pathname === '/create-post' ? styles.active : ''}
+                    className={`${styles.navLink} ${location.pathname === '/create-post' ? styles.active : ''}`}
                   >
-                    Write
+                    <span className={styles.navIcon}>✍️</span>
+                    <span>Write</span>
                   </Link>
                 </li>
                 
@@ -94,9 +110,10 @@ function Navbar() {
                   <li>
                     <Link 
                       to="/admin"
-                      className={location.pathname === '/admin' ? styles.active : ''}
+                      className={`${styles.navLink} ${location.pathname === '/admin' ? styles.active : ''}`}
                     >
-                      Admin
+                      <span className={styles.navIcon}>👑</span>
+                      <span>Admin</span>
                     </Link>
                   </li>
                 )}
@@ -104,19 +121,26 @@ function Navbar() {
                 {/* User Menu Dropdown */}
                 <li className={styles.userMenu}>
                   <button className={styles.userButton}>
-                    <span className={styles.avatar}>
+                    <div className={styles.avatar}>
                       {user.profilePic ? (
                         <img src={`http://localhost:5000/uploads/${user.profilePic}`} alt={user.name} />
                       ) : (
-                        user.name?.charAt(0).toUpperCase()
+                        <span className={styles.avatarInitial}>{user.name?.charAt(0).toUpperCase()}</span>
                       )}
-                    </span>
-                    <span className={styles.userName}>{user.name}</span>
+                    </div>
+                    <span className={styles.userName}>{user.name?.split(' ')[0]}</span>
+                    <span className={styles.dropdownArrow}>▼</span>
                   </button>
                   
                   <div className={styles.dropdown}>
-                    <Link to="/profile" className={styles.dropdownItem}>Profile</Link>
-                    <button onClick={handleLogout} className={styles.dropdownItem}>Logout</button>
+                    <Link to="/profile" className={styles.dropdownItem}>
+                      <span className={styles.dropdownIcon}>👤</span>
+                      <span>Profile</span>
+                    </Link>
+                    <button onClick={handleLogout} className={styles.dropdownItem}>
+                      <span className={styles.dropdownIcon}>🚪</span>
+                      <span>Logout</span>
+                    </button>
                   </div>
                 </li>
               </>
@@ -129,7 +153,11 @@ function Navbar() {
                 className={styles.themeToggle}
                 aria-label="Toggle theme"
               >
-                {theme === 'dark' ? '☀️' : '🌙'}
+                {theme === 'dark' ? (
+                  <span className={styles.themeIcon}>☀️</span>
+                ) : (
+                  <span className={styles.themeIcon}>🌙</span>
+                )}
               </button>
             </li>
           </ul>

@@ -26,93 +26,71 @@ function AboutPage() {
   const [modalCaption, setModalCaption] = useState('');
   const { theme } = useTheme();
 
-  const sections = [
+  const journeyCards = [
     {
-      title: 'My Story Through Dance',
-      text: (
-        <>
-          My name is <strong>Donato G. Ureta Jr.</strong>, also known as <strong>DJ</strong>.
-          I am from San Eugenio, Aringay, La Union. This webpage shares my personal
-          journey in discovering my passion for dance and how it became an important part of my life.
-        </>
-      ),
+      id: 1,
+      title: 'My Story',
+      description: 'My name is Donato G. Ureta Jr., also known as DJ. I am from San Eugenio, Aringay, La Union.',
       images: [
-        {
-          src: meImg,
-          caption: "This is me, DJ! Dancing has been my passion since I was young. Every step tells a story, every movement expresses emotion."
-        }
+        { src: meImg, caption: "This is me, DJ! Dancing has been my passion since I was young." }
       ],
     },
     {
-      title: 'My First Dance Experience',
-      text: 'At first, I was not really interested in dancing, but participating in school festivals gradually sparked my passion.',
+      id: 2,
+      title: 'First Dance',
+      description: 'Participating in school festivals gradually sparked my passion for dance.',
       images: [
-        {
-          src: elem1,
-          caption: "My first school festival performance. I was nervous but excited! This is where it all began."
-        },
-        {
-          src: elem2,
-          caption: "Practicing with my classmates after school. We spent hours perfecting our routine, not knowing this would become my lifelong passion."
-        }
+        { src: elem1, caption: "My first school festival performance. This is where it all began." },
+        { src: elem2, caption: "Practicing with my classmates after school." }
       ],
     },
     {
-      title: 'High School & Special Performances',
-      text: 'During high school, I joined competitions and school performances, which improved my skills and confidence.',
+      id: 3,
+      title: 'High School',
+      description: 'Joined competitions and school performances, improving my skills and confidence.',
       images: [
-        {
-          src: spa1,
-          caption: "Our dance crew after winning 2nd place in the regional competition. The feeling of achievement was unforgettable!"
-        },
-        {
-          src: spa2,
-          caption: "Backstage before our biggest performance. The energy and anticipation backstage is always electric."
-        },
-        {
-          src: spa3,
-          caption: "Teaching younger students some basic moves. Sharing my passion with others brought me so much joy."
-        },
-        {
-          src: spa4,
-          caption: "Intensive training session - we practiced until our feet hurt, but it was worth every moment."
-        },
-        {
-          src: spa5,
-          caption: "Our dance team after the year-end showcase. We gave it our all and the audience loved it!"
-        }
+        { src: spa1, caption: "Our dance crew after winning 2nd place in regional competition." },
+        { src: spa2, caption: "Backstage before our biggest performance." },
+        { src: spa3, caption: "Teaching younger students some basic moves." }
       ],
     },
     {
-      title: 'Inspiration & Solo Performances',
-      text: 'I drew inspiration from professional dancers and explored solo performances to express my personal style.',
+      id: 4,
+      title: 'Competitions',
+      description: 'Intensive training and performances that shaped my dance journey.',
       images: [
-        {
-          src: inspo,
-          caption: "Watching professional dancers perform opened my eyes to what's possible. They inspired me to push my limits."
-        },
-        {
-          src: sl1,
-          caption: "My first solo performance - I was terrified but the moment I stepped on stage, everything felt right."
-        },
-        {
-          src: sl2,
-          caption: "Exploring contemporary dance. This style allows me to express emotions that words cannot capture."
-        },
-        {
-          src: sl3,
-          caption: "After a successful solo performance at the city festival. The crowd's applause was overwhelming."
-        },
-        {
-          src: sl4,
-          caption: "Creating my own choreography. This piece tells the story of my journey as a dancer."
-        },
-        {
-          src: sl5,
-          caption: "The final bow. Every performance ends, but the passion never fades. Already excited for the next one!"
-        }
+        { src: spa4, caption: "Intensive training session - worth every moment." },
+        { src: spa5, caption: "Our dance team after year-end showcase." }
       ],
     },
+    {
+      id: 5,
+      title: 'Inspiration',
+      description: 'Drew inspiration from professional dancers to express my personal style.',
+      images: [
+        { src: inspo, caption: "Watching professional dancers perform opened my eyes." },
+        { src: sl1, caption: "My first solo performance." },
+        { src: sl2, caption: "Exploring contemporary dance." }
+      ],
+    },
+    {
+      id: 6,
+      title: 'Solo Journey',
+      description: 'Creating my own choreography and expressing through solo performances.',
+      images: [
+        { src: sl3, caption: "After a successful solo performance at city festival." },
+        { src: sl4, caption: "Creating my own choreography." },
+        { src: sl5, caption: "The final bow - excited for the next one!" }
+      ],
+    },
+  ];
+
+  const funFacts = [
+    "The waltz originated in Austria in the late 18th century.",
+    "Ballet dancers can perform on pointe after years of training.",
+    "Hip Hop dance culture began in the 1970s in New York City.",
+    "Salsa has roots in Cuba and Puerto Rico.",
+    "Flamenco involves intricate footwork and hand movements."
   ];
 
   const openModal = (img, caption) => {
@@ -122,87 +100,79 @@ function AboutPage() {
 
   return (
     <div className={`${styles.page} ${theme === 'dark' ? styles.darkMode : ''}`}>
-      {/* Main Content */}
       <div className={styles.container}>
-        {/* Hero Section */}
-        <div className={styles.hero}>
-          <h1 className={styles.heroTitle}>
+        {/* Header Section */}
+        <div className={styles.header}>
+          <h1 className={styles.title}>
             Dancing Through Life
             <span>Donato G. Ureta Jr.</span>
           </h1>
-          <div className={styles.heroDance}>
-            <span>💃</span>
-            <span>🕺</span>
-            <span>💃</span>
+          <div className={styles.titleDecoration}>
+            <span className={styles.line}></span>
+            <span className={styles.danceIcons}>💃 🕺 💃</span>
+            <span className={styles.line}></span>
           </div>
         </div>
 
-        {/* Timeline Journey */}
-        <div className={styles.timeline}>
-          {sections.map((section, idx) => (
-            <div key={idx} className={styles.timelineSection}>
-              <div className={styles.timelineMarker}>
-                <span>{idx + 1}</span>
+        {/* Journey Grid - 3x2 Landscape Layout */}
+        <div className={styles.journeyGrid}>
+          {journeyCards.map((card) => (
+            <div key={card.id} className={styles.journeyCard}>
+              <div className={styles.cardHeader}>
+                <h2>{card.title}</h2>
+                <span className={styles.cardNumber}>0{card.id}</span>
               </div>
+              <p className={styles.cardDescription}>{card.description}</p>
               
-              <div className={styles.timelineContent}>
-                <h2 className={styles.sectionTitle}>
-                  <span>{section.title.split(' ')[0]}</span> {section.title.split(' ').slice(1).join(' ')}
-                </h2>
-                <p className={styles.sectionText}>{section.text}</p>
-                
-                {section.images.length > 0 && (
-                  <div className={styles.imageGrid}>
-                    {section.images.map((item, i) => (
-                      <div
-                        key={i}
-                        className={styles.imageCard}
-                        onClick={() => openModal(item.src, item.caption)}
-                      >
-                        <div className={styles.imageWrapper}>
-                          <img
-                            src={item.src}
-                            alt={`${section.title} ${i + 1}`}
-                            className={styles.clickableImage}
-                          />
-                          <div className={styles.imageOverlay}>
-                            <span className={styles.zoomIcon}>🔍</span>
-                          </div>
-                        </div>
-                        <div className={styles.imageCaption}>
-                          <p>{item.caption}</p>
-                        </div>
-                      </div>
-                    ))}
+              <div className={styles.imageStrip}>
+                {card.images.map((item, i) => (
+                  <div
+                    key={i}
+                    className={styles.stripItem}
+                    onClick={() => openModal(item.src, item.caption)}
+                    title={item.caption}
+                  >
+                    <img
+                      src={item.src}
+                      alt={`${card.title} ${i + 1}`}
+                      className={styles.stripImage}
+                    />
+                    <div className={styles.stripOverlay}>
+                      <span>🔍</span>
+                    </div>
                   </div>
-                )}
+                ))}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Fun Dance Facts */}
-        <section className={styles.funFacts}>
-          <h2><span>Fun</span> Dance Facts</h2>
-          <ul>
-            <li>The waltz originated in Austria in the late 18th century.</li>
-            <li>Ballet dancers can perform on pointe after years of training.</li>
-            <li>Hip Hop dance culture began in the 1970s in New York City.</li>
-            <li>Salsa has roots in Cuba and Puerto Rico.</li>
-            <li>Flamenco involves intricate footwork and hand movements.</li>
-          </ul>
-        </section>
-
-        {/* Inspirational Quote */}
-        <div className={styles.blockquote}>
-          “Dance is not just movement, it is the story of my journey.”
+        {/* Facts & Quote Bar - Horizontal Layout */}
+        <div className={styles.infoBar}>
+          <div className={styles.factsSection}>
+            <h3>Fun Facts</h3>
+            <ul className={styles.factsList}>
+              {funFacts.map((fact, index) => (
+                <li key={index}>{fact}</li>
+              ))}
+            </ul>
+          </div>
+          
+          <div className={styles.quoteSection}>
+            <div className={styles.quoteIcon}>"</div>
+            <p className={styles.quoteText}>
+              Dance is not just movement, it is the story of my journey.
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Footer */}
       <footer className={styles.footer}>
-        <p>Contact: dxxxxxxxxxxx@gmail.com | Phone: 09xxxxxxx8</p>
-        <p>&copy; 2026 My Dance Journey. All rights reserved.</p>
+        <div className={styles.footerContent}>
+          <p>Contact: dxxxxxxxxxxx@gmail.com | Phone: 09xxxxxxx8</p>
+          <p>&copy; 2026 My Dance Journey. All rights reserved.</p>
+        </div>
       </footer>
 
       {/* Image Modal */}

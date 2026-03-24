@@ -17,11 +17,13 @@ const ProfilePage = () => {
     const [msg, setMsg] = useState({ type: '', text: '' });
     const [loading, setLoading] = useState(false);
 
+    // Get backend URL from environment variable
+    const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             setPic(file);
-            // Create preview
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPicPreview(reader.result);
@@ -91,13 +93,14 @@ const ProfilePage = () => {
         }
     };
 
+    // Updated profile picture source using environment variable
     const picSrc = user?.profilePic
-        ? `http://localhost:5000/uploads/${user.profilePic}`
+        ? `${BACKEND_URL}/uploads/${user.profilePic}`
         : null;
 
     if (!user) {
         return (
-            <div className={styles.loading}>
+            <div className={styles.loadingContainer}>
                 <div className={styles.loadingSpinner}></div>
                 <p>Loading profile...</p>
             </div>
@@ -106,168 +109,185 @@ const ProfilePage = () => {
 
     return (
         <div className={styles.profilePage}>
-            <div className={styles.header}>
-                <h2>My Profile</h2>
-                <p className={styles.subtitle}>Manage your personal information and account settings</p>
-            </div>
-
-            {msg.text && (
-                <div className={msg.type === 'success' ? styles.successMsg : styles.errorMsg}>
-                    <span>{msg.type === 'success' ? '✅' : '❌'}</span>
-                    {msg.text}
-                </div>
-            )}
-
-            <div className={styles.profileGrid}>
-                {/* Left Column - Profile Card */}
-                <div className={styles.profileCard}>
-                    <div className={styles.avatarContainer}>
-                        {picPreview ? (
-                            <img src={picPreview} alt="Preview" className={styles.avatar} />
-                        ) : picSrc ? (
-                            <img src={picSrc} alt={user.name} className={styles.avatar} />
-                        ) : (
-                            <div className={styles.defaultAvatar}>
-                                {user.name?.charAt(0).toUpperCase()}
-                            </div>
-                        )}
-                        <label htmlFor="profilePicInput" className={styles.avatarOverlay} title="Change photo">
-                            📷
-                        </label>
-                        <input
-                            id="profilePicInput"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleFileChange}
-                            style={{ display: 'none' }}
-                        />
-                    </div>
-
-                    <h3 className={styles.profileName}>{user.name}</h3>
-                    
-                    <div className={styles.profileEmail}>
-                        <span>📧</span> {user.email}
-                    </div>
-                    
-                    <span className={`${styles.profileRole} ${user.role === 'admin' ? styles.admin : ''}`}>
-                        {user.role === 'admin' ? '👑 Administrator' : '👤 Member'}
-                    </span>
-
-                    {user.bio && (
-                        <div className={styles.profileBio}>
-                            {user.bio}
-                        </div>
-                    )}
-
-                    <div className={styles.statBadge}>
-                        <span>📅 Joined {new Date(user.createdAt).toLocaleDateString()}</span>
-                    </div>
+            <div className={styles.container}>
+                {/* Header Section */}
+                <div className={styles.header}>
+                    <h2>My Profile</h2>
+                    <p className={styles.subtitle}>Manage your personal information and account settings</p>
+                    <div className={styles.headerLine}></div>
                 </div>
 
-                {/* Right Column - Forms */}
-                <div className={styles.formsContainer}>
-                    {/* Edit Profile Form */}
-                    <div className={styles.formCard}>
-                        <div className={styles.formHeader}>
-                            <span className={styles.formIcon}>✏️</span>
-                            <h3>Edit Profile</h3>
-                        </div>
+                {msg.text && (
+                    <div className={`${styles.messageBox} ${styles[msg.type]}`}>
+                        <span>{msg.type === 'success' ? '✅' : '❌'}</span>
+                        <span>{msg.text}</span>
+                    </div>
+                )}
 
-                        <form onSubmit={handleProfile}>
-                            <div className={styles.formGroup}>
-                                <label className={styles.label}>Display Name</label>
-                                <input
-                                    type="text"
-                                    className={styles.input}
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder="Your name"
-                                />
-                            </div>
-
-                            <div className={styles.formGroup}>
-                                <label className={styles.label}>Bio</label>
-                                <textarea
-                                    className={styles.textarea}
-                                    value={bio}
-                                    onChange={(e) => setBio(e.target.value)}
-                                    placeholder="Tell us about your dance journey..."
-                                    rows={4}
-                                />
-                            </div>
-
-                            <div className={styles.formGroup}>
-                                <label className={styles.label}>Profile Picture</label>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleFileChange}
-                                    className={styles.fileInput}
-                                />
-                                {picPreview && (
-                                    <small style={{ color: '#666', marginTop: '0.5rem', display: 'block' }}>
-                                        New image selected: {pic?.name}
-                                    </small>
+                {/* Profile Content - Two Column Layout */}
+                <div className={styles.profileContent}>
+                    {/* Left Column - Profile Card */}
+                    <div className={styles.profileCard}>
+                        <div className={styles.avatarWrapper}>
+                            <div className={styles.avatarContainer}>
+                                {picPreview ? (
+                                    <img src={picPreview} alt="Preview" className={styles.avatar} />
+                                ) : picSrc ? (
+                                    <img src={picSrc} alt={user.name} className={styles.avatar} />
+                                ) : (
+                                    <div className={styles.defaultAvatar}>
+                                        {user.name?.charAt(0).toUpperCase()}
+                                    </div>
                                 )}
-                                <small style={{ color: '#666', marginTop: '0.5rem', display: 'block' }}>
-                                    Square image recommended · Max 5MB
-                                </small>
                             </div>
-
-                            <button 
-                                type="submit" 
-                                className={styles.button}
-                                disabled={loading}
-                            >
-                                {loading ? 'Saving...' : 'Save Profile'}
-                            </button>
-                        </form>
-                    </div>
-
-                    {/* Change Password Form */}
-                    <div className={styles.formCard}>
-                        <div className={styles.formHeader}>
-                            <span className={styles.formIcon}>🔒</span>
-                            <h3>Change Password</h3>
+                            <label htmlFor="profilePicInput" className={styles.avatarOverlay} title="Change photo">
+                                <span>📷</span>
+                                <span className={styles.overlayText}>Change Photo</span>
+                            </label>
+                            <input
+                                id="profilePicInput"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                style={{ display: 'none' }}
+                            />
                         </div>
 
-                        <form onSubmit={handlePassword}>
-                            <div className={styles.formGroup}>
-                                <label className={styles.label}>Current Password</label>
-                                <input
-                                    type="password"
-                                    className={styles.input}
-                                    value={curPw}
-                                    onChange={(e) => setCurPw(e.target.value)}
-                                    placeholder="Enter current password"
-                                    required
-                                />
+                        <div className={styles.userInfo}>
+                            <h3 className={styles.profileName}>{user.name}</h3>
+                            <div className={styles.profileEmail}>
+                                <span>📧</span>
+                                <span>{user.email}</span>
+                            </div>
+                            <div className={styles.roleBadge}>
+                                {user.role === 'admin' ? '👑 Administrator' : '👤 Member'}
+                            </div>
+                            {user.bio && (
+                                <div className={styles.bioBox}>
+                                    <p>{user.bio}</p>
+                                </div>
+                            )}
+                            <div className={styles.joinDate}>
+                                <span>📅</span>
+                                <span>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right Column - Forms Stack */}
+                    <div className={styles.formsStack}>
+                        {/* Edit Profile Form */}
+                        <div className={styles.formCard}>
+                            <div className={styles.formHeader}>
+                                <span className={styles.formIcon}>✏️</span>
+                                <h3>Edit Profile</h3>
                             </div>
 
-                            <div className={styles.formGroup}>
-                                <label className={styles.label}>New Password</label>
-                                <input
-                                    type="password"
-                                    className={styles.input}
-                                    value={newPw}
-                                    onChange={(e) => setNewPw(e.target.value)}
-                                    placeholder="Enter new password (min 6 chars)"
-                                    required
-                                    minLength={6}
-                                />
-                                <small style={{ color: '#666', marginTop: '0.5rem', display: 'block' }}>
-                                    Minimum 6 characters
-                                </small>
+                            <form onSubmit={handleProfile} className={styles.form}>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>Display Name</label>
+                                    <input
+                                        type="text"
+                                        className={styles.input}
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        placeholder="Your name"
+                                    />
+                                </div>
+
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>Bio</label>
+                                    <textarea
+                                        className={styles.textarea}
+                                        value={bio}
+                                        onChange={(e) => setBio(e.target.value)}
+                                        placeholder="Tell us about your dance journey..."
+                                        rows={3}
+                                    />
+                                </div>
+
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>Profile Picture</label>
+                                    <div className={styles.fileInputWrapper}>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                            className={styles.fileInput}
+                                            id="fileInput"
+                                        />
+                                        <label htmlFor="fileInput" className={styles.fileInputLabel}>
+                                            Choose File
+                                        </label>
+                                        <span className={styles.fileName}>
+                                            {pic ? pic.name : 'No file chosen'}
+                                        </span>
+                                    </div>
+                                    {picPreview && (
+                                        <small className={styles.fileHint}>
+                                            New image selected: {pic?.name}
+                                        </small>
+                                    )}
+                                    <small className={styles.fileHint}>
+                                        Square image recommended · Max 5MB
+                                    </small>
+                                </div>
+
+                                <button 
+                                    type="submit" 
+                                    className={styles.button}
+                                    disabled={loading}
+                                >
+                                    {loading ? 'Saving...' : 'Save Profile'}
+                                </button>
+                            </form>
+                        </div>
+
+                        {/* Change Password Form */}
+                        <div className={styles.formCard}>
+                            <div className={styles.formHeader}>
+                                <span className={styles.formIcon}>🔒</span>
+                                <h3>Change Password</h3>
                             </div>
 
-                            <button 
-                                type="submit" 
-                                className={styles.button}
-                                disabled={loading}
-                            >
-                                {loading ? 'Updating...' : 'Change Password'}
-                            </button>
-                        </form>
+                            <form onSubmit={handlePassword} className={styles.form}>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>Current Password</label>
+                                    <input
+                                        type="password"
+                                        className={styles.input}
+                                        value={curPw}
+                                        onChange={(e) => setCurPw(e.target.value)}
+                                        placeholder="Enter current password"
+                                        required
+                                    />
+                                </div>
+
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>New Password</label>
+                                    <input
+                                        type="password"
+                                        className={styles.input}
+                                        value={newPw}
+                                        onChange={(e) => setNewPw(e.target.value)}
+                                        placeholder="Enter new password (min 6 chars)"
+                                        required
+                                        minLength={6}
+                                    />
+                                    <small className={styles.passwordHint}>
+                                        Minimum 6 characters
+                                    </small>
+                                </div>
+
+                                <button 
+                                    type="submit" 
+                                    className={styles.button}
+                                    disabled={loading}
+                                >
+                                    {loading ? 'Updating...' : 'Change Password'}
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

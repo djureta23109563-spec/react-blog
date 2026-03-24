@@ -20,13 +20,14 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/posts/:id - Public: single post by ID
+// GET /api/posts/:id - Public: single post by ID (including removed for admin viewing)
 router.get('/:id', async (req, res) => {
   try {
     const post = await Post.findById(req.params.id).populate('author', 'name profilePic');
-    if (!post || post.status === 'removed') {
+    if (!post) {
       return res.status(404).json({ message: 'Post not found' });
     }
+    // Allow viewing even if removed (for admin viewing via deleted-post route)
     res.json(post);
   } catch (err) {
     console.error('Error fetching post:', err);
@@ -140,7 +141,33 @@ router.put('/:id', protect, memberOrAdmin, (req, res, next) => {
   }
 });
 
-// DELETE /api/posts/:id - Delete: only post owner OR admin
+// PUT /api/posts/:id/remove - Soft delete (change status to removed)
+router.put('/:id/remove', protect, memberOrAdmin, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    // Check authorization
+    const isOwner = post.author.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+
+    // SOFT DELETE - just change status
+    post.status = 'removed';
+    await post.save();
+    
+    res.json({ message: 'Post removed successfully', post });
+  } catch (err) {
+    console.error('Error removing post:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// DELETE /api/posts/:id - Permanently delete (admin only)
 router.delete('/:id', protect, memberOrAdmin, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -148,16 +175,15 @@ router.delete('/:id', protect, memberOrAdmin, async (req, res) => {
       return res.status(404).json({ message: 'Post not found' });
     }
 
-    const isOwner = post.author.toString() === req.user._id.toString();
-    const isAdmin = req.user.role === 'admin';
-    if (!isOwner && !isAdmin) {
-      return res.status(403).json({ message: 'Not authorized' });
+    // Only admin can permanently delete
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Only admins can permanently delete posts' });
     }
 
     await post.deleteOne();
-    res.json({ message: 'Post deleted successfully' });
+    res.json({ message: 'Post permanently deleted' });
   } catch (err) {
-    console.error('Error deleting post:', err);
+    console.error('Error permanently deleting post:', err);
     res.status(500).json({ message: err.message });
   }
 });

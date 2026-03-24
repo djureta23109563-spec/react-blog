@@ -15,30 +15,42 @@
   color: #f0f0f0;
 }
 
-/* ===== HERO SECTION ===== */
-.hero {
-  padding: 4rem 2rem;
+.container {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 2rem;
 }
 
-.heroContent {
+/* ===== HERO SECTION ===== */
+.hero {
+  padding: 4rem 0;
+  background: #ffffff;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+:global(.dark-mode) .hero {
+  background: #0a0a0a;
+  border-bottom-color: #222;
+}
+
+.heroGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
   align-items: center;
+  margin-bottom: 3rem;
 }
 
-.heroLeft {
+.heroContent {
   animation: fadeIn 0.8s ease;
 }
 
 .heroTagline {
   font-size: 0.9rem;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
   color: #666;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 :global(.dark-mode) .heroTagline {
@@ -46,11 +58,11 @@
 }
 
 .heroTitle {
-  font-size: 3.5rem;
-  font-weight: 600;
-  line-height: 1.1;
+  font-size: 3rem;
+  font-weight: 700;
   margin: 0 0 1.5rem;
   color: #000;
+  line-height: 1.2;
 }
 
 :global(.dark-mode) .heroTitle {
@@ -59,56 +71,32 @@
 
 .heroDescription {
   font-size: 1.1rem;
-  color: #666;
-  line-height: 1.6;
+  color: #444;
+  line-height: 1.8;
   margin-bottom: 2rem;
   max-width: 500px;
 }
 
 :global(.dark-mode) .heroDescription {
-  color: #999;
+  color: #ccc;
 }
 
 .heroButtons {
   display: flex;
   gap: 1rem;
-  margin-bottom: 3rem;
-}
-
-.primaryButton {
-  padding: 1rem 2rem;
-  background: #000;
-  color: #fff;
-  text-decoration: none;
-  font-weight: 600;
-  border: 2px solid #000;
-  transition: all 0.2s;
-}
-
-:global(.dark-mode) .primaryButton {
-  background: #fff;
-  color: #000;
-  border-color: #fff;
-}
-
-.primaryButton:hover {
-  background: transparent;
-  color: #000;
-}
-
-:global(.dark-mode) .primaryButton:hover {
-  background: transparent;
-  color: #fff;
 }
 
 .secondaryButton {
-  padding: 1rem 2rem;
+  padding: 0.75rem 2rem;
   background: transparent;
   color: #000;
-  text-decoration: none;
-  font-weight: 600;
   border: 2px solid #000;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
   transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
 }
 
 :global(.dark-mode) .secondaryButton {
@@ -126,71 +114,41 @@
   color: #000;
 }
 
-.heroStats {
-  display: flex;
-  gap: 3rem;
-}
-
-.stat {
-  text-align: left;
-}
-
-.statNumber {
-  display: block;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #000;
-  margin-bottom: 0.25rem;
-}
-
-:global(.dark-mode) .statNumber {
-  color: #fff;
-}
-
-.statLabel {
-  font-size: 0.9rem;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-:global(.dark-mode) .statLabel {
-  color: #999;
-}
-
-/* Right Side - Photo */
-.heroRight {
+.heroImageWrapper {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   animation: fadeIn 0.8s ease 0.2s both;
 }
 
 .photoFrame {
-  position: relative;
-  background: #f8f8f8;
+  width: 350px;
+  height: 450px;
   border: 2px solid #000;
-  padding: 1rem;
-  box-shadow: 20px 20px 0 #000;
+  overflow: hidden;
+  box-shadow: 8px 8px 0 #000;
   transition: all 0.2s;
 }
 
 :global(.dark-mode) .photoFrame {
-  background: #111;
   border-color: #fff;
-  box-shadow: 20px 20px 0 #fff;
+  box-shadow: 8px 8px 0 #fff;
 }
 
 .photoFrame:hover {
-  transform: translate(-5px, -5px);
-  box-shadow: 25px 25px 0 #000;
+  transform: translate(-4px, -4px);
+  box-shadow: 12px 12px 0 #000;
 }
 
 :global(.dark-mode) .photoFrame:hover {
-  box-shadow: 25px 25px 0 #fff;
+  box-shadow: 12px 12px 0 #fff;
 }
 
 .heroPhoto {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   display: block;
   filter: grayscale(100%);
   transition: filter 0.3s;
@@ -201,39 +159,90 @@
 }
 
 .photoBadge {
-  position: absolute;
-  bottom: -1rem;
-  right: -1rem;
-  background: #000;
-  color: #fff;
-  padding: 0.5rem 1.5rem;
+  margin-top: 1.5rem;
+  background: #f8f8f8;
+  border: 2px solid #000;
+  padding: 0.5rem 2rem;
   font-size: 0.9rem;
   font-weight: 500;
-  border: 2px solid #fff;
 }
 
 :global(.dark-mode) .photoBadge {
-  background: #fff;
+  background: #111;
+  border-color: #fff;
+  color: #fff;
+}
+
+/* Hero Stats */
+.heroStats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  padding: 2rem;
+  background: #f8f8f8;
+  border: 2px solid #000;
+  margin-top: 2rem;
+}
+
+:global(.dark-mode) .heroStats {
+  background: #111;
+  border-color: #fff;
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statNumber {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
   color: #000;
-  border-color: #000;
+  margin-bottom: 0.25rem;
+}
+
+:global(.dark-mode) .statNumber {
+  color: #fff;
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+:global(.dark-mode) .statLabel {
+  color: #999;
+}
+
+.statDivider {
+  width: 2px;
+  height: 40px;
+  background: #000;
+  opacity: 0.2;
+}
+
+:global(.dark-mode) .statDivider {
+  background: #fff;
+  opacity: 0.2;
 }
 
 /* ===== BLOG SECTION ===== */
 .blogSection {
-  max-width: 1200px;
-  margin: 6rem auto;
-  padding: 0 2rem;
+  padding: 5rem 0;
 }
 
-.blogHeader {
+.sectionHeader {
   text-align: center;
   margin-bottom: 4rem;
 }
 
 .blogTagline {
   font-size: 0.9rem;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
   color: #666;
   margin-bottom: 1rem;
 }
@@ -244,7 +253,7 @@
 
 .blogTitle {
   font-size: 2.5rem;
-  font-weight: 600;
+  font-weight: 300;
   margin: 0 0 1rem;
   color: #000;
 }
@@ -254,7 +263,7 @@
 }
 
 .blogSubtitle {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: #666;
   max-width: 600px;
   margin: 0 auto;
@@ -264,19 +273,20 @@
   color: #999;
 }
 
-/* Posts Grid */
+/* Posts Grid - Improved */
 .postsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 2rem;
 }
 
-/* Post Card */
 .postCard {
   background: #fff;
   border: 2px solid #000;
   overflow: hidden;
   transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
 }
 
 :global(.dark-mode) .postCard {
@@ -294,6 +304,7 @@
 }
 
 .postImageWrapper {
+  position: relative;
   width: 100%;
   height: 220px;
   overflow: hidden;
@@ -310,11 +321,12 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s;
+  filter: grayscale(100%);
+  transition: filter 0.3s;
 }
 
 .postCard:hover .postImage {
-  transform: scale(1.05);
+  filter: grayscale(0%);
 }
 
 .postImagePlaceholder {
@@ -327,29 +339,44 @@
   color: #999;
 }
 
+.postCategory {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: #000;
+  color: #fff;
+  padding: 0.25rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  border: 2px solid #fff;
+}
+
+:global(.dark-mode) .postCategory {
+  background: #fff;
+  color: #000;
+  border-color: #000;
+}
+
 .postContent {
   padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .postMeta {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.postDate {
+  font-size: 0.8rem;
+  color: #666;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-.postCategory {
-  color: #000;
-  font-weight: 600;
-}
-
-:global(.dark-mode) .postCategory {
-  color: #fff;
-}
-
-.postDate {
+:global(.dark-mode) .postDate {
   color: #999;
 }
 
@@ -375,14 +402,15 @@
 }
 
 .postExcerpt {
-  color: #666;
+  color: #444;
   font-size: 0.95rem;
   line-height: 1.6;
   margin-bottom: 1.5rem;
+  flex: 1;
 }
 
 :global(.dark-mode) .postExcerpt {
-  color: #999;
+  color: #ccc;
 }
 
 .postFooter {
@@ -428,9 +456,9 @@
 }
 
 .authorName {
-  font-size: 0.9rem;
   font-weight: 500;
   color: #000;
+  font-size: 0.9rem;
 }
 
 :global(.dark-mode) .authorName {
@@ -440,8 +468,8 @@
 .readMoreLink {
   color: #000;
   text-decoration: none;
-  font-size: 0.9rem;
   font-weight: 500;
+  font-size: 0.9rem;
   transition: all 0.2s;
   border-bottom: 2px solid transparent;
 }
@@ -460,11 +488,10 @@
 
 /* ===== SIGNUP SECTION ===== */
 .signupSection {
+  padding: 4rem 0;
   background: #f8f8f8;
   border-top: 2px solid #000;
   border-bottom: 2px solid #000;
-  padding: 5rem 2rem;
-  margin: 4rem 0;
 }
 
 :global(.dark-mode) .signupSection {
@@ -472,15 +499,20 @@
   border-color: #fff;
 }
 
+.signupGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
 .signupContent {
-  max-width: 600px;
-  margin: 0 auto;
-  text-align: center;
+  padding-right: 2rem;
 }
 
 .signupTitle {
-  font-size: 3rem;
-  font-weight: 600;
+  font-size: 2rem;
+  font-weight: 300;
   margin: 0 0 1rem;
   color: #000;
 }
@@ -489,24 +521,28 @@
   color: #fff;
 }
 
-.signupTitle span {
-  font-weight: 300;
-  color: #666;
-}
-
-:global(.dark-mode) .signupTitle span {
-  color: #999;
-}
-
 .signupDescription {
   font-size: 1.1rem;
   color: #666;
   line-height: 1.6;
-  margin-bottom: 2.5rem;
+  margin: 0;
 }
 
 :global(.dark-mode) .signupDescription {
   color: #999;
+}
+
+.signupFormWrapper {
+  background: #fff;
+  border: 2px solid #000;
+  padding: 2rem;
+  box-shadow: 8px 8px 0 #000;
+}
+
+:global(.dark-mode) .signupFormWrapper {
+  background: #0a0a0a;
+  border-color: #fff;
+  box-shadow: 8px 8px 0 #fff;
 }
 
 .signupForm {
@@ -517,26 +553,25 @@
 
 .signupInput {
   flex: 1;
-  padding: 1rem 1.5rem;
+  padding: 1rem;
   border: 2px solid #000;
   font-size: 1rem;
-  background: #fff;
+  background: transparent;
   color: #000;
 }
 
 :global(.dark-mode) .signupInput {
-  background: #0a0a0a;
   border-color: #fff;
   color: #fff;
 }
 
 .signupInput:focus {
   outline: none;
-  box-shadow: 4px 4px 0 #000;
+  background: #f8f8f8;
 }
 
 :global(.dark-mode) .signupInput:focus {
-  box-shadow: 4px 4px 0 #fff;
+  background: #1a1a1a;
 }
 
 .signupButton {
@@ -568,8 +603,13 @@
 }
 
 .signupNote {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #999;
+  margin: 0;
+}
+
+:global(.dark-mode) .signupNote {
+  color: #666;
 }
 
 /* ===== LOADING STATE ===== */
@@ -721,12 +761,13 @@
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 968px) {
-  .heroContent {
+  .heroGrid {
     grid-template-columns: 1fr;
     gap: 3rem;
+    text-align: center;
   }
 
-  .heroLeft {
+  .heroContent {
     text-align: center;
   }
 
@@ -740,18 +781,47 @@
   }
 
   .heroStats {
-    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2rem;
   }
 
-  .photoFrame {
-    max-width: 400px;
-    margin: 0 auto;
+  .signupGrid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .signupContent {
+    padding-right: 0;
+    text-align: center;
   }
 }
 
 @media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+
+  .hero {
+    padding: 3rem 0;
+  }
+
   .heroTitle {
     font-size: 2.5rem;
+  }
+
+  .photoFrame {
+    width: 280px;
+    height: 350px;
+  }
+
+  .heroStats {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .statDivider {
+    width: 80px;
+    height: 2px;
   }
 
   .blogTitle {
@@ -772,10 +842,6 @@
 }
 
 @media (max-width: 480px) {
-  .hero {
-    padding: 2rem 1rem;
-  }
-
   .heroTitle {
     font-size: 2rem;
   }
@@ -784,18 +850,17 @@
     flex-direction: column;
   }
 
-  .heroStats {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .stat {
+  .secondaryButton {
+    width: 100%;
     text-align: center;
   }
 
-  .postFooter {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: flex-start;
+  .photoFrame {
+    width: 240px;
+    height: 300px;
+  }
+
+  .photoBadge {
+    padding: 0.5rem 1rem;
   }
 }

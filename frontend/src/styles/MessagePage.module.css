@@ -1,0 +1,460 @@
+/* frontend/src/styles/MessagePage.module.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+.messagePage {
+  font-family: 'Inter', sans-serif;
+  color: #1a1a1a;
+  background: #ffffff;
+  min-height: 100vh;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+:global(.dark-mode) .messagePage {
+  background: #0a0a0a;
+  color: #f0f0f0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 300;
+  margin: 0 0 1rem;
+  color: #000;
+}
+
+:global(.dark-mode) .title {
+  color: #fff;
+}
+
+.title::before {
+  content: '💬';
+  margin-right: 0.5rem;
+  opacity: 0.5;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #666;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+:global(.dark-mode) .subtitle {
+  color: #999;
+}
+
+/* Content Layout */
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 2rem;
+}
+
+/* Info Section */
+.infoSection {
+  animation: slideInLeft 0.5s ease;
+}
+
+.infoCard {
+  background: #f8f8f8;
+  border: 2px solid #000;
+  padding: 2rem;
+  box-shadow: 8px 8px 0 #000;
+}
+
+:global(.dark-mode) .infoCard {
+  background: #111;
+  border-color: #fff;
+  box-shadow: 8px 8px 0 #fff;
+}
+
+.infoTitle {
+  font-size: 2rem;
+  font-weight: 300;
+  margin: 0 0 2rem;
+  color: #000;
+  border-bottom: 2px solid #000;
+  padding-bottom: 1rem;
+}
+
+:global(.dark-mode) .infoTitle {
+  color: #fff;
+  border-bottom-color: #fff;
+}
+
+.infoItem {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #fff;
+  border: 2px solid #f0f0f0;
+  transition: all 0.2s;
+}
+
+:global(.dark-mode) .infoItem {
+  background: #0a0a0a;
+  border-color: #222;
+}
+
+.infoItem:hover {
+  transform: translateX(4px);
+  border-color: #000;
+}
+
+:global(.dark-mode) .infoItem:hover {
+  border-color: #fff;
+}
+
+.infoIcon {
+  font-size: 1.8rem;
+  min-width: 40px;
+}
+
+.infoItem strong {
+  display: block;
+  color: #000;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+:global(.dark-mode) .infoItem strong {
+  color: #fff;
+}
+
+.infoItem p {
+  margin: 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+:global(.dark-mode) .infoItem p {
+  color: #999;
+}
+
+/* Login Prompt */
+.loginPrompt {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #fff;
+  border: 2px dashed #000;
+  text-align: center;
+}
+
+:global(.dark-mode) .loginPrompt {
+  background: #0a0a0a;
+  border-color: #fff;
+}
+
+.loginPrompt p {
+  margin: 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+:global(.dark-mode) .loginPrompt p {
+  color: #999;
+}
+
+.loginLink {
+  color: #000;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 2px solid #000;
+  transition: all 0.2s;
+}
+
+:global(.dark-mode) .loginLink {
+  color: #fff;
+  border-bottom-color: #fff;
+}
+
+.loginLink:hover {
+  color: #666;
+  border-bottom-color: #666;
+}
+
+/* Form Section */
+.formSection {
+  animation: slideInRight 0.5s ease;
+}
+
+.formCard {
+  background: #fff;
+  border: 2px solid #000;
+  padding: 2rem;
+  box-shadow: 8px 8px 0 #000;
+}
+
+:global(.dark-mode) .formCard {
+  background: #0a0a0a;
+  border-color: #fff;
+  box-shadow: 8px 8px 0 #fff;
+}
+
+.formTitle {
+  font-size: 2rem;
+  font-weight: 300;
+  margin: 0 0 2rem;
+  color: #000;
+  border-bottom: 2px solid #000;
+  padding-bottom: 1rem;
+}
+
+:global(.dark-mode) .formTitle {
+  color: #fff;
+  border-bottom-color: #fff;
+}
+
+/* Messages */
+.errorMsg,
+.successMsg {
+  padding: 1rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  border-left: 4px solid;
+  border-right: 4px solid;
+}
+
+.errorMsg {
+  background: #fff3f3;
+  color: #d32f2f;
+  border-left-color: #d32f2f;
+  border-right-color: #d32f2f;
+}
+
+:global(.dark-mode) .errorMsg {
+  background: #2a1a1a;
+  color: #ff6b6b;
+  border-left-color: #ff6b6b;
+  border-right-color: #ff6b6b;
+}
+
+.successMsg {
+  background: #f0f9f0;
+  color: #2e7d32;
+  border-left-color: #2e7d32;
+  border-right-color: #2e7d32;
+}
+
+:global(.dark-mode) .successMsg {
+  background: #1a2a1a;
+  color: #81c784;
+  border-left-color: #81c784;
+  border-right-color: #81c784;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+:global(.dark-mode) .label {
+  color: #fff;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #000;
+  font-size: 1rem;
+  background: transparent;
+  color: #000;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+:global(.dark-mode) .input,
+:global(.dark-mode) .textarea {
+  border-color: #fff;
+  color: #fff;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  background: #f8f8f8;
+}
+
+:global(.dark-mode) .input:focus,
+:global(.dark-mode) .textarea:focus {
+  background: #1a1a1a;
+}
+
+.input:read-only,
+.textarea:read-only {
+  background: #f8f8f8;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+:global(.dark-mode) .input:read-only,
+:global(.dark-mode) .textarea:read-only {
+  background: #1a1a1a;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 150px;
+}
+
+.submitButton {
+  padding: 1rem 2rem;
+  background: #000;
+  color: #fff;
+  border: 2px solid #000;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+:global(.dark-mode) .submitButton {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: transparent;
+  color: #000;
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 #000;
+}
+
+:global(.dark-mode) .submitButton:hover:not(:disabled) {
+  background: transparent;
+  color: #fff;
+  box-shadow: 4px 4px 0 #fff;
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonIcon {
+  font-size: 1.2rem;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #fff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+:global(.dark-mode) .spinner {
+  border-color: #000;
+  border-top-color: transparent;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Animations */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 2rem 1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .infoCard,
+  .formCard {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.8rem;
+  }
+
+  .infoItem {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .infoIcon {
+    margin: 0 auto;
+  }
+}
