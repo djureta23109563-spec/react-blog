@@ -32,6 +32,9 @@ const AdminPage = () => {
     recentActivity: []
   });
 
+  // For Vite, use import.meta.env for backend URL
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -323,7 +326,6 @@ const AdminPage = () => {
         {/* Dashboard Tab */}
         {activeTab === 'dashboard' && (
           <div className={styles.dashboardContent}>
-            {/* Stats Grid */}
             <div className={styles.statsGrid}>
               <div className={styles.statCard}>
                 <div className={styles.statIcon}>👥</div>
@@ -370,7 +372,6 @@ const AdminPage = () => {
               </div>
             </div>
 
-            {/* Quick Actions */}
             <div className={styles.quickActions}>
               <h2 className={styles.sectionTitle}>Quick Actions</h2>
               <div className={styles.actionGrid}>
@@ -393,7 +394,6 @@ const AdminPage = () => {
               </div>
             </div>
 
-            {/* Recent Activity */}
             <div className={styles.recentActivity}>
               <h2 className={styles.sectionTitle}>Recent Activity</h2>
               <div className={styles.activityList}>
@@ -483,7 +483,7 @@ const AdminPage = () => {
           </div>
         )}
 
-        {/* Posts Tab */}
+        {/* Posts Tab - WITH DEBUGGING */}
         {activeTab === 'posts' && (
           <div className={styles.tabContent}>
             <div className={styles.tableContainer}>
@@ -513,11 +513,16 @@ const AdminPage = () => {
                         <td>
                           <div className={styles.actionGroup}>
                             <button
-                              onClick={() => window.open(`/posts/${post._id}`, '_blank')}
+                              onClick={() => {
+                                console.log('🔍 Opening post with ID:', post._id);
+                                console.log('📝 Post title:', post.title);
+                                console.log('🔗 URL:', `/posts/${post._id}`);
+                                window.open(`/posts/${post._id}`, '_blank');
+                              }}
                               className={`${styles.actionBtn} ${styles.infoBtn}`}
                               title="View post"
                             >
-                              👁️
+                              👁️ View
                             </button>
                             {post.status === 'published' && (
                               <button
@@ -525,7 +530,7 @@ const AdminPage = () => {
                                 className={`${styles.actionBtn} ${styles.dangerBtn}`}
                                 title="Remove post"
                               >
-                                🗑️
+                                🗑️ Remove
                               </button>
                             )}
                           </div>
@@ -576,14 +581,14 @@ const AdminPage = () => {
                               className={`${styles.actionBtn} ${styles.infoBtn}`}
                               title="View deleted post"
                             >
-                              👁️
+                              👁️ View
                             </button>
                             <button
                               onClick={() => restorePost(post._id)}
                               className={`${styles.actionBtn} ${styles.successBtn}`}
                               title="Restore post"
                             >
-                              ↩️
+                              ↩️ Restore
                             </button>
                           </div>
                         </td>
