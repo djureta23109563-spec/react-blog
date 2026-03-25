@@ -2,28 +2,18 @@
 
 import axios from 'axios';
 
-// Helper function to get API URL
-const getApiUrl = () => {
-    // Check if we're in production (hostname is not localhost)
-    const isProduction = window.location.hostname !== 'localhost';
-    
-    // For development (localhost)
-    if (!isProduction) {
-        return 'http://localhost:5000/api';
-    }
-    
-    // For production - after deployment, update this
-    // You'll change this after deploying backend to Render
-    return 'https://your-backend.onrender.com/api';
-};
+// Get API URL from environment variable
+// For local development: uses .env (REACT_APP_API_URL=http://localhost:5000/api)
+// For production: uses Vercel environment variable (REACT_APP_API_URL=https://react-blog-7yna.onrender.com/api)
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Create an Axios instance with base URL
 const instance = axios.create({
-    baseURL: getApiUrl(),
+    baseURL: API_URL,
 });
 
 // Debug: Log the API URL being used
-console.log('🔧 API Base URL:', getApiUrl());
+console.log('🔧 API Base URL:', API_URL);
 
 // This interceptor runs before EVERY request.
 // It reads the token from localStorage and adds it to the Authorization header.
@@ -58,7 +48,7 @@ instance.interceptors.response.use(
         
         // Handle network errors
         if (error.message === 'Network Error') {
-            console.log('❌ Network error. Make sure backend is running at:', getApiUrl());
+            console.log('❌ Network error. Make sure backend is running at:', API_URL);
         }
         
         console.error(`❌ Error: ${error.config?.method?.toUpperCase()} ${error.config?.url} - Status: ${error.response?.status}`);

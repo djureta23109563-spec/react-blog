@@ -15,6 +15,9 @@ const HomePage = () => {
     const [error, setError] = useState('');
     const { user } = useAuth();
 
+    // Get backend URL from environment variable
+    const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+
     useEffect(() => {
         fetchPosts();
     }, []);
@@ -165,7 +168,7 @@ const HomePage = () => {
                                     <div className={styles.postImageWrapper}>
                                         {post.image ? (
                                             <img
-                                                src={`http://localhost:5000/uploads/${post.image}`}
+                                                src={`${BACKEND_URL}/uploads/${post.image}`}
                                                 alt={post.title}
                                                 className={styles.postImage}
                                             />
@@ -194,7 +197,7 @@ const HomePage = () => {
                                                 <div className={styles.authorAvatar}>
                                                     {post.author?.profilePic ? (
                                                         <img 
-                                                            src={`http://localhost:5000/uploads/${post.author.profilePic}`}
+                                                            src={`${BACKEND_URL}/uploads/${post.author.profilePic}`}
                                                             alt={post.author.name}
                                                         />
                                                     ) : (
