@@ -34,37 +34,11 @@ const app = express();
 connectDB();
 
 // ── Middleware ─────────────────────────────────────────────────
+// CORS - Allow all origins (temporary fix for deployment)
 app.use(cors({
     origin: function(origin, callback) {
-        // Define allowed origins
-        const allowedOrigins = [
-            // Local development ports
-            'http://localhost:3000',
-            'http://localhost:5173',
-            'http://localhost:5174',
-            'http://localhost:5175',
-            'http://localhost:5176',
-            'http://localhost:5177',
-            'http://localhost:5178',
-            'http://localhost:5179',
-            'http://localhost:5180',
-            'http://localhost:5181/',
-            'http://localhost:5182/',
-            
-            // 🔴 VERCEL DEPLOYMENT URLs - ADDED 🔴
-            'https://react-blog.vercel.app',
-            'https://react-blog-bpx3-dt5r8439d-djureta23109563-specs-projects.vercel.app'
-        ];
-        
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
-        // Check if origin is allowed
-        if (allowedOrigins.indexOf(origin) !== -1 || origin.startsWith('http://localhost:')) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
+        // Allow all origins for now
+        callback(null, true);
     },
     credentials: true
 }));
