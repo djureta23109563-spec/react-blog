@@ -34,12 +34,9 @@ const app = express();
 connectDB();
 
 // ── Middleware ─────────────────────────────────────────────────
-// CORS - Allow all origins (temporary fix for deployment)
+// CORS - Simplified to allow all origins
 app.use(cors({
-    origin: function(origin, callback) {
-        // Allow all origins for now
-        callback(null, true);
-    },
+    origin: true,  // This allows all origins
     credentials: true
 }));
 
