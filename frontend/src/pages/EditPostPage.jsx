@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import styles from "../styles/EditPostPage.module.css";
 import api from "../api/axios";
 
 function EditPostPage() {
-  const { id } = useParams(); // Changed from postId to id
+  const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth(); // Add this!
   const [post, setPost] = useState({ title: "", body: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -15,7 +17,7 @@ function EditPostPage() {
   const [message, setMessage] = useState({ text: "", type: "" });
 
   useEffect(() => {
-    if (id) { // Check if id exists
+    if (id) {
       console.log("Fetching post with ID:", id);
       fetchPost();
     } else {
@@ -28,7 +30,7 @@ function EditPostPage() {
     try {
       setLoading(true);
       console.log("Fetching post with ID:", id);
-      const res = await api.get(`/posts/${id}`); // Use id
+      const res = await api.get(`/posts/${id}`);
       console.log("Post data:", res.data);
       setPost(res.data);
       setError("");
@@ -59,7 +61,7 @@ function EditPostPage() {
       console.log("Updating post with ID:", id);
       console.log("Update data:", post);
       
-      const response = await api.put(`/posts/${id}`, post); // Use id
+      const response = await api.put(`/posts/${id}`, post);
       console.log("Update response:", response.data);
       
       setMessage({ 
@@ -67,9 +69,8 @@ function EditPostPage() {
         type: "success" 
       });
       
-      // Redirect after 2 seconds
       setTimeout(() => {
-        navigate(`/posts/${id}`); // Use id
+        navigate(`/posts/${id}`);
       }, 2000);
     } catch (err) {
       console.error("Error updating post:", err);
@@ -98,6 +99,12 @@ function EditPostPage() {
     }
   };
 
+  // ✅ Add permission check
+  const canEdit = () => {
+    if (!user || !post) return false;
+    return user.role === 'admin' || post.author?._id === user._id;
+  };
+
   if (loading) {
     return (
       <div className={styles.page}>
@@ -115,6 +122,18 @@ function EditPostPage() {
         <div className={styles.error}>
           <p>❌ {error}</p>
           <button onClick={fetchPost}>Try Again</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ Show permission error if user can't edit
+  if (!canEdit()) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.error}>
+          <p>❌ You don't have permission to edit this post.</p>
+          <button onClick={() => navigate('/home')}>Back to Home</button>
         </div>
       </div>
     );
