@@ -1,8 +1,10 @@
 // frontend/src/App.js
 
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
+import PageTransition from './components/PageTransition';
 
 // Import SplashPage
 import SplashPage from './pages/SplashPage';
@@ -27,32 +29,111 @@ function App() {
     <>
       {!isSplashPage && <Navbar />}
       
-      <Routes>
-        {/* Splash page at root */}
-        <Route path='/' element={<SplashPage />} />
-        
-        {/* Home page */}
-        <Route path='/home' element={<HomePage />} />
-        
-        {/* Other public routes */}
-        <Route path='/about' element={<AboutPage />} />
-        <Route path='/contact' element={<ContactPage />} />
-        <Route path='/message' element={<MessagePage />} />
-        <Route path='/posts/:id' element={<PostPage />} />
-        <Route path='/login' element={<LoginPage />} />
-        <Route path='/register' element={<RegisterPage />} />
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          {/* Splash page at root */}
+          <Route path='/' element={
+            <PageTransition>
+              <SplashPage />
+            </PageTransition>
+          } />
+          
+          {/* Home page */}
+          <Route path='/home' element={
+            <PageTransition>
+              <HomePage />
+            </PageTransition>
+          } />
+          
+          {/* Other public routes */}
+          <Route path='/about' element={
+            <PageTransition>
+              <AboutPage />
+            </PageTransition>
+          } />
+          <Route path='/contact' element={
+            <PageTransition>
+              <ContactPage />
+            </PageTransition>
+          } />
+          <Route path='/message' element={
+            <PageTransition>
+              <MessagePage />
+            </PageTransition>
+          } />
+          <Route path='/posts/:id' element={
+            <PageTransition>
+              <PostPage />
+            </PageTransition>
+          } />
+          <Route path='/login' element={
+            <PageTransition>
+              <LoginPage />
+            </PageTransition>
+          } />
+          <Route path='/register' element={
+            <PageTransition>
+              <RegisterPage />
+            </PageTransition>
+          } />
 
-        {/* Protected routes */}
-        <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-        <Route path='/create-post' element={<ProtectedRoute><CreatePostPage /></ProtectedRoute>} />
-        <Route path='/edit-post/:id' element={<ProtectedRoute><EditPostPage /></ProtectedRoute>} />
+          {/* Protected routes */}
+          <Route
+            path='/profile'
+            element={
+              <ProtectedRoute>
+                <PageTransition>
+                  <ProfilePage />
+                </PageTransition>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/create-post'
+            element={
+              <ProtectedRoute>
+                <PageTransition>
+                  <CreatePostPage />
+                </PageTransition>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/edit-post/:id'
+            element={
+              <ProtectedRoute>
+                <PageTransition>
+                  <EditPostPage />
+                </PageTransition>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Admin only */}
-        <Route path='/admin' element={<ProtectedRoute role='admin'><AdminPage /></ProtectedRoute>} />
-        
-        {/* Deleted Post View */}
-        <Route path='/deleted-post/:id' element={<ProtectedRoute role='admin'><DeletedPostPage /></ProtectedRoute>} />
-      </Routes>
+          {/* Admin only */}
+          <Route
+            path='/admin'
+            element={
+              <ProtectedRoute role='admin'>
+                <PageTransition>
+                  <AdminPage />
+                </PageTransition>
+              </ProtectedRoute>
+            }
+          />
+          
+          {/* Deleted Post View */}
+          <Route
+            path='/deleted-post/:id'
+            element={
+              <ProtectedRoute role='admin'>
+                <PageTransition>
+                  <DeletedPostPage />
+                </PageTransition>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </AnimatePresence>
     </>
   );
 }
