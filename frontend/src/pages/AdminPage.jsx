@@ -483,7 +483,7 @@ const AdminPage = () => {
           </div>
         )}
 
-        {/* Posts Tab - WITH SAME TAB NAVIGATION */}
+        {/* Posts Tab - SAME TAB NAVIGATION */}
         {activeTab === 'posts' && (
           <div className={styles.tabContent}>
             <div className={styles.tableContainer}>
@@ -551,7 +551,7 @@ const AdminPage = () => {
           </div>
         )}
 
-        {/* Removed Posts Tab */}
+        {/* Removed Posts Tab - SAME TAB NAVIGATION */}
         {activeTab === 'removed' && (
           <div className={styles.tabContent}>
             <div className={styles.tableContainer}>
@@ -578,7 +578,13 @@ const AdminPage = () => {
                         <td>
                           <div className={styles.actionGroup}>
                             <button
-                              onClick={() => window.open(`/deleted-post/${post._id}`, '_blank')}
+                              onClick={() => {
+                                console.log('🔍 Opening deleted post with ID:', post._id);
+                                console.log('📝 Post title:', post.title);
+                                console.log('🔗 URL:', `/deleted-post/${post._id}`);
+                                // Open in same tab
+                                window.location.href = `/deleted-post/${post._id}`;
+                              }}
                               className={`${styles.actionBtn} ${styles.infoBtn}`}
                               title="View deleted post"
                             >
