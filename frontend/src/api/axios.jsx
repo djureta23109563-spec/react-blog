@@ -2,10 +2,8 @@
 
 import axios from 'axios';
 
-// For Vite, environment variables must use import.meta.env
-// For local development: uses .env (VITE_API_URL=http://localhost:5000/api)
-// For production: uses Vercel environment variable (VITE_API_URL=https://react-blog-7yna.onrender.com/api)
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// TEMPORARY: Hardcode the production URL
+const API_URL = 'https://react-blog-7yna.onrender.com/api';
 
 // Create an Axios instance with base URL
 const instance = axios.create({

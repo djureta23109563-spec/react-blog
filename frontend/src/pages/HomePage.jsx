@@ -15,8 +15,8 @@ const HomePage = () => {
     const [error, setError] = useState('');
     const { user } = useAuth();
 
-    // For Vite, environment variables must use import.meta.env
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+    // TEMPORARY: Hardcode the backend URL for production
+    const BACKEND_URL = 'https://react-blog-7yna.onrender.com';
 
     useEffect(() => {
         fetchPosts();
