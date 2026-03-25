@@ -11,6 +11,9 @@ function Navbar() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
+  // For Vite, use import.meta.env for backend URL
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -123,7 +126,10 @@ function Navbar() {
                   <button className={styles.userButton}>
                     <div className={styles.avatar}>
                       {user.profilePic ? (
-                        <img src={`http://localhost:5000/uploads/${user.profilePic}`} alt={user.name} />
+                        <img 
+                          src={`${BACKEND_URL}/uploads/${user.profilePic}`} 
+                          alt={user.name} 
+                        />
                       ) : (
                         <span className={styles.avatarInitial}>{user.name?.charAt(0).toUpperCase()}</span>
                       )}
