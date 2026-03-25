@@ -51,9 +51,9 @@ app.use(cors({
             'http://localhost:5181/',
             'http://localhost:5182/',
             
-            // 🔴 AFTER VERCEL DEPLOYMENT - ADD YOUR LIVE URL HERE 🔴
-            // Example: 'https://dancefolio.vercel.app'
-            // You will add this after deploying to Vercel
+            // 🔴 VERCEL DEPLOYMENT URLs - ADDED 🔴
+            'https://react-blog.vercel.app',
+            'https://react-blog-bpx3-dt5r8439d-djureta23109563-specs-projects.vercel.app'
         ];
         
         // Allow requests with no origin (like mobile apps or curl requests)
