@@ -1,0 +1,6 @@
+{
+  "env": {
+    "REACT_APP_API_URL": "https://react-blog-7yna.onrender.com/api",
+    "REACT_APP_BACKEND_URL": "https://react-blog-7yna.onrender.com"
+  }
+}

@@ -15,8 +15,8 @@ const HomePage = () => {
     const [error, setError] = useState('');
     const { user } = useAuth();
 
-    // Get backend URL from environment variable
-    const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+    // For Vite, environment variables must use import.meta.env
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
     useEffect(() => {
         fetchPosts();
