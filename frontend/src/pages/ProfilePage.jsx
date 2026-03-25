@@ -17,8 +17,8 @@ const ProfilePage = () => {
     const [msg, setMsg] = useState({ type: '', text: '' });
     const [loading, setLoading] = useState(false);
 
-    // Get backend URL from environment variable
-    const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+    // For Vite, use import.meta.env
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -93,7 +93,6 @@ const ProfilePage = () => {
         }
     };
 
-    // Updated profile picture source using environment variable
     const picSrc = user?.profilePic
         ? `${BACKEND_URL}/uploads/${user.profilePic}`
         : null;
@@ -110,7 +109,6 @@ const ProfilePage = () => {
     return (
         <div className={styles.profilePage}>
             <div className={styles.container}>
-                {/* Header Section */}
                 <div className={styles.header}>
                     <h2>My Profile</h2>
                     <p className={styles.subtitle}>Manage your personal information and account settings</p>
@@ -124,9 +122,7 @@ const ProfilePage = () => {
                     </div>
                 )}
 
-                {/* Profile Content - Two Column Layout */}
                 <div className={styles.profileContent}>
-                    {/* Left Column - Profile Card */}
                     <div className={styles.profileCard}>
                         <div className={styles.avatarWrapper}>
                             <div className={styles.avatarContainer}>
@@ -174,9 +170,7 @@ const ProfilePage = () => {
                         </div>
                     </div>
 
-                    {/* Right Column - Forms Stack */}
                     <div className={styles.formsStack}>
-                        {/* Edit Profile Form */}
                         <div className={styles.formCard}>
                             <div className={styles.formHeader}>
                                 <span className={styles.formIcon}>✏️</span>
@@ -243,7 +237,6 @@ const ProfilePage = () => {
                             </form>
                         </div>
 
-                        {/* Change Password Form */}
                         <div className={styles.formCard}>
                             <div className={styles.formHeader}>
                                 <span className={styles.formIcon}>🔒</span>

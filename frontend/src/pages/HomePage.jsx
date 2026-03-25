@@ -82,7 +82,7 @@ const HomePage = () => {
 
     return (
         <div className={styles.homePage}>
-            {/* Hero Section with improved layout */}
+            {/* Hero Section */}
             <section className={styles.hero}>
                 <div className={styles.container}>
                     <div className={styles.heroGrid}>
@@ -116,7 +116,6 @@ const HomePage = () => {
                         </div>
                     </div>
 
-                    {/* Stats moved below hero for better flow */}
                     <div className={styles.heroStats}>
                         <div className={styles.statItem}>
                             <span className={styles.statNumber}>{posts.length}+</span>
@@ -136,7 +135,7 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* Blog Posts Section with improved grid */}
+            {/* Blog Posts Section */}
             <section className={styles.blogSection}>
                 <div className={styles.container}>
                     <div className={styles.sectionHeader}>
@@ -223,7 +222,7 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* Newsletter Signup Section with improved layout */}
+            {/* Newsletter Signup Section */}
             <section className={styles.signupSection}>
                 <div className={styles.container}>
                     <div className={styles.signupGrid}>

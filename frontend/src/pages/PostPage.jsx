@@ -7,7 +7,7 @@ import API from '../api/axios';
 import styles from '../styles/PostPage.module.css';
 
 const PostPage = () => {
-  const { id } = useParams(); // Get post ID from URL
+  const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
   
@@ -15,13 +15,12 @@ const PostPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
-  // Comments state
   const [comments, setComments] = useState([]);
   const [commentBody, setCommentBody] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
 
-  // Get backend URL from environment variable
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+  // For Vite, use import.meta.env
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
   useEffect(() => {
     if (id) {
@@ -52,7 +51,6 @@ const PostPage = () => {
       setComments(data);
     } catch (err) {
       console.error('Error fetching comments:', err);
-      // Don't show error for comments, just set empty array
       setComments([]);
     }
   };
@@ -69,7 +67,7 @@ const PostPage = () => {
     try {
       setSubmittingComment(true);
       const { data } = await API.post(`/comments/${id}`, { body: commentBody });
-      setComments([data, ...comments]); // Add new comment to top
+      setComments([data, ...comments]);
       setCommentBody('');
     } catch (err) {
       console.error('Error posting comment:', err);
@@ -103,13 +101,11 @@ const PostPage = () => {
     }
   };
 
-  // Check if current user can edit/delete post
   const canModifyPost = () => {
     if (!user || !post) return false;
     return user.role === 'admin' || post.author?._id === user._id;
   };
 
-  // Check if current user can delete comment
   const canDeleteComment = (comment) => {
     if (!user || !comment) return false;
     return user.role === 'admin' || comment.author?._id === user._id;
@@ -139,7 +135,6 @@ const PostPage = () => {
   return (
     <div className={styles.postPage}>
       <article className={styles.postCard}>
-        {/* Post Header */}
         <div className={styles.postHeader}>
           <h1 className={styles.postTitle}>{post.title}</h1>
           
@@ -186,7 +181,6 @@ const PostPage = () => {
           </div>
         </div>
 
-        {/* Post Image */}
         {post.image && (
           <div className={styles.postImageContainer}>
             <img 
@@ -197,7 +191,6 @@ const PostPage = () => {
           </div>
         )}
 
-        {/* Post Content */}
         <div className={styles.postContent}>
           {post.body.split('\n').map((paragraph, index) => (
             <p key={index}>{paragraph}</p>
@@ -205,13 +198,11 @@ const PostPage = () => {
         </div>
       </article>
 
-      {/* Comments Section */}
       <section className={styles.commentsSection}>
         <h2 className={styles.commentsTitle}>
           💬 Comments ({comments.length})
         </h2>
 
-        {/* Comment Form */}
         {user ? (
           <form onSubmit={handleCommentSubmit} className={styles.commentForm}>
             <textarea
@@ -234,7 +225,6 @@ const PostPage = () => {
           </p>
         )}
 
-        {/* Comments List */}
         <div className={styles.commentsList}>
           {comments.length === 0 ? (
             <p className={styles.noComments}>No comments yet. Be the first to comment!</p>
