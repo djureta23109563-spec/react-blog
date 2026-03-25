@@ -441,7 +441,7 @@ const AdminPage = () => {
                     <th>Email</th>
                     <th>Status</th>
                     <th>Actions</th>
-                  </tr>
+                   </tr>
                 </thead>
                 <tbody>
                   {filteredUsers.length > 0 ? (
@@ -483,7 +483,7 @@ const AdminPage = () => {
           </div>
         )}
 
-        {/* Posts Tab - WITH DEBUGGING */}
+        {/* Posts Tab - WITH SAME TAB NAVIGATION */}
         {activeTab === 'posts' && (
           <div className={styles.tabContent}>
             <div className={styles.tableContainer}>
@@ -517,7 +517,8 @@ const AdminPage = () => {
                                 console.log('🔍 Opening post with ID:', post._id);
                                 console.log('📝 Post title:', post.title);
                                 console.log('🔗 URL:', `/posts/${post._id}`);
-                                window.open(`/posts/${post._id}`, '_blank');
+                                // Open in same tab
+                                window.location.href = `/posts/${post._id}`;
                               }}
                               className={`${styles.actionBtn} ${styles.infoBtn}`}
                               title="View post"
