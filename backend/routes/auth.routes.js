@@ -1,10 +1,17 @@
+const express = require('express');
+const router = express.Router();  // <-- ADD THIS LINE
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const { protect } = require('../middleware/auth.middleware');
+const upload = require('../middleware/upload');
+
 // GET /api/auth/me - Get current user
 router.get('/me', protect, async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
         res.json({
             ...user.toJSON(),
-            avatar: user.avatar || user.profilePic || '' // Include best available
+            avatar: user.avatar || user.profilePic || ''
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -20,14 +27,10 @@ router.put('/profile', protect, upload.single('profilePic'), async (req, res) =>
             return res.status(404).json({ message: 'User not found' });
         }
         
-        // Update basic fields
         if (req.body.name) user.name = req.body.name;
         if (req.body.bio !== undefined) user.bio = req.body.bio;
         
-        // Handle local file upload (old system - backward compatibility)
         if (req.file) {
-            // If user has a Cloudinary avatar, keep it (Cloudinary takes priority)
-            // Only update profilePic as fallback
             user.profilePic = req.file.filename;
         }
         
@@ -47,7 +50,7 @@ router.put('/profile', protect, upload.single('profilePic'), async (req, res) =>
     }
 });
 
-// POST /api/auth/change-password - Change user password
+// PUT /api/auth/change-password - Change password
 router.put('/change-password', protect, async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
@@ -62,13 +65,11 @@ router.put('/change-password', protect, async (req, res) => {
         
         const user = await User.findById(req.user._id);
         
-        // Verify current password
         const isMatch = await user.matchPassword(currentPassword);
         if (!isMatch) {
             return res.status(401).json({ message: 'Current password is incorrect' });
         }
         
-        // Update password
         user.password = newPassword;
         await user.save();
         
@@ -82,7 +83,7 @@ router.put('/change-password', protect, async (req, res) => {
     }
 });
 
-// GET /api/auth/members - Get all members (public)
+// GET /api/auth/members - Get all members
 router.get('/members', async (req, res) => {
     try {
         const members = await User.find(
@@ -106,7 +107,7 @@ router.get('/members', async (req, res) => {
     }
 });
 
-// GET /api/auth/user/:id - Get user by ID (public)
+// GET /api/auth/user/:id - Get user by ID
 router.get('/user/:id', async (req, res) => {
     try {
         const user = await User.findById(req.params.id).select('name email role bio avatar profilePic createdAt');
@@ -126,3 +127,5 @@ router.get('/user/:id', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+module.exports = router;
