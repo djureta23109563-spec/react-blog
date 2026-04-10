@@ -12,17 +12,37 @@ router.post('/avatar', protect, upload.single('avatar'), async (req, res) => {
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
-        // Convert buffer to base64 for Cloudinary
-        const fileStr = req.file.buffer.toString('base64');
-        const fileData = `data:${req.file.mimetype};base64,${fileStr}`;
+        // Handle both buffer (memory storage) and path (disk storage)
+        let result;
         
-        // Upload to Cloudinary
-        const result = await cloudinary.uploader.upload(fileData, {
-            folder: `user-avatars/${req.user._id}`,
-            transformation: [
-                { width: 300, height: 300, crop: 'fill', gravity: 'face' }
-            ]
-        });
+        if (req.file.buffer) {
+            // Memory storage (production on Render)
+            const fileStr = req.file.buffer.toString('base64');
+            const fileData = `data:${req.file.mimetype};base64,${fileStr}`;
+            
+            result = await cloudinary.uploader.upload(fileData, {
+                folder: 'member-avatars',
+                transformation: [
+                    { width: 300, height: 300, crop: 'fill', gravity: 'face' }
+                ]
+            });
+        } else if (req.file.path) {
+            // Disk storage (local development)
+            result = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'member-avatars',
+                transformation: [
+                    { width: 300, height: 300, crop: 'fill', gravity: 'face' }
+                ]
+            });
+            
+            // Clean up local file after upload
+            const fs = require('fs');
+            if (fs.existsSync(req.file.path)) {
+                fs.unlinkSync(req.file.path);
+            }
+        } else {
+            return res.status(400).json({ error: 'Invalid file upload' });
+        }
 
         // Delete old Cloudinary avatar if exists
         const user = await User.findById(req.user._id);
@@ -34,16 +54,10 @@ router.post('/avatar', protect, upload.single('avatar'), async (req, res) => {
             }
         }
 
-        // Update user with Cloudinary URL
+        // Update user
         user.avatar = result.secure_url;
         user.avatarPublicId = result.public_id;
         user.avatarUpdatedAt = new Date();
-        
-        // Also keep profilePic for backward compatibility
-        if (!user.profilePic) {
-            // Extract filename from URL if needed, or just keep existing
-        }
-        
         await user.save();
 
         res.json({
@@ -55,13 +69,44 @@ router.post('/avatar', protect, upload.single('avatar'), async (req, res) => {
                 name: user.name,
                 email: user.email,
                 avatar: user.avatar,
-                profilePic: user.profilePic,
                 role: user.role
             }
         });
     } catch (error) {
         console.error('Upload error:', error);
         res.status(500).json({ error: 'Upload failed: ' + error.message });
+    }
+});
+
+// Get user avatar (public)
+router.get('/avatar/:userId', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId).select('avatar profilePic name');
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        let avatarUrl = '';
+        
+        if (user.avatar) {
+            avatarUrl = user.avatar;
+        } else if (user.profilePic) {
+            if (user.profilePic.startsWith('http')) {
+                avatarUrl = user.profilePic;
+            } else {
+                const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+                avatarUrl = `${backendUrl}/uploads/${user.profilePic}`;
+            }
+        }
+        
+        res.json({ 
+            url: avatarUrl,
+            name: user.name,
+            hasAvatar: !!user.avatar
+        });
+    } catch (error) {
+        console.error('Error fetching avatar:', error);
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
@@ -74,7 +119,6 @@ router.delete('/avatar', protect, async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        // Delete from Cloudinary if exists
         if (user.avatarPublicId) {
             try {
                 await cloudinary.uploader.destroy(user.avatarPublicId);
@@ -83,7 +127,6 @@ router.delete('/avatar', protect, async (req, res) => {
             }
         }
 
-        // Clear avatar fields
         user.avatar = '';
         user.avatarPublicId = '';
         user.avatarUpdatedAt = null;
@@ -99,23 +142,30 @@ router.delete('/avatar', protect, async (req, res) => {
     }
 });
 
-// Get user avatar (public)
-router.get('/avatar/:userId', async (req, res) => {
+// Get current user's avatar
+router.get('/my-avatar', protect, async (req, res) => {
     try {
-        const user = await User.findById(req.params.userId).select('avatar profilePic name');
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+        const user = await User.findById(req.user._id).select('avatar profilePic name email role');
+        
+        let avatarUrl = user.avatar;
+        if (!avatarUrl && user.profilePic) {
+            if (user.profilePic.startsWith('http')) {
+                avatarUrl = user.profilePic;
+            } else {
+                const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+                avatarUrl = `${backendUrl}/uploads/${user.profilePic}`;
+            }
         }
         
-        const avatarUrl = user.avatar || user.profilePic || '';
-        
-        res.json({ 
-            url: avatarUrl,
+        res.json({
+            success: true,
+            avatar: avatarUrl,
             name: user.name,
-            hasCloudinaryAvatar: !!user.avatar
+            email: user.email,
+            role: user.role
         });
     } catch (error) {
-        console.error('Error fetching avatar:', error);
+        console.error('Error:', error);
         res.status(500).json({ error: 'Server error' });
     }
 });
