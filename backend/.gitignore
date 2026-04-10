@@ -1,0 +1,6 @@
+# Should include these lines:
+.env
+.env.local
+.env.*.local
+node_modules/
+uploads/

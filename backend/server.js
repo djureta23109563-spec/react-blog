@@ -1,5 +1,3 @@
-// backend/server.js
-
 require('dotenv').config();
 
 const express = require('express');
@@ -21,22 +19,23 @@ console.log('✅ commentRoutes loaded:', typeof commentRoutes);
 const adminRoutes = require('./routes/admin.routes');
 console.log('✅ adminRoutes loaded:', typeof adminRoutes);
 
-// Import message routes
 const messageRoutes = require('./routes/message.routes');
 console.log('✅ messageRoutes loaded:', typeof messageRoutes);
 
-// Import deleted post routes
 const deletedPostRoutes = require('./routes/deletedPost.routes');
 console.log('✅ deletedPostRoutes loaded:', typeof deletedPostRoutes);
+
+// NEW: Import upload routes
+const uploadRoutes = require('./routes/upload.routes');
+console.log('✅ uploadRoutes loaded:', typeof uploadRoutes);
 
 const app = express();
 
 connectDB();
 
 // ── Middleware ─────────────────────────────────────────────────
-// CORS - Simplified to allow all origins
 app.use(cors({
-    origin: true,  // This allows all origins
+    origin: true,
     credentials: true
 }));
 
@@ -50,6 +49,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/deleted-posts', deletedPostRoutes);
+app.use('/api/uploads', uploadRoutes); // NEW: Add upload routes
 
 // ── Health Check ──────────────────────────────────────────────
 app.get('/api/health', (req, res) => {

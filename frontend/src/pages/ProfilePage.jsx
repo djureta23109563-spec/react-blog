@@ -1,12 +1,10 @@
-// frontend/src/pages/ProfilePage.js
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 import styles from '../styles/ProfilePage.module.css';
 
 const ProfilePage = () => {
-    const { user, setUser } = useAuth();
+    const { user, setUser, token } = useAuth();
 
     const [name, setName] = useState(user?.name || '');
     const [bio, setBio] = useState(user?.bio || '');
@@ -16,9 +14,16 @@ const ProfilePage = () => {
     const [newPw, setNewPw] = useState('');
     const [msg, setMsg] = useState({ type: '', text: '' });
     const [loading, setLoading] = useState(false);
+    const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
-    // For Vite, use import.meta.env
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
+    // Get the best available profile image URL
+    const getProfileImageUrl = () => {
+        if (user?.avatar) return user.avatar;
+        if (user?.profilePic) return `${BACKEND_URL}/uploads/${user.profilePic}`;
+        return null;
+    };
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -29,6 +34,76 @@ const ProfilePage = () => {
                 setPicPreview(reader.result);
             };
             reader.readAsDataURL(file);
+        }
+    };
+
+    // NEW: Handle Cloudinary avatar upload
+    const handleAvatarUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            setMsg({ type: 'error', text: 'Please select an image file' });
+            return;
+        }
+
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            setMsg({ type: 'error', text: 'File size must be less than 5MB' });
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        setUploadingAvatar(true);
+        setMsg({ type: '', text: '' });
+
+        try {
+            const response = await API.post('/uploads/avatar', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (response.data.success) {
+                // Update user context with new avatar
+                setUser(prev => ({ ...prev, avatar: response.data.avatarUrl }));
+                setMsg({ type: 'success', text: 'Avatar uploaded successfully! ✨' });
+                
+                // Clear any file input
+                e.target.value = '';
+            }
+        } catch (err) {
+            console.error('Avatar upload error:', err);
+            setMsg({ 
+                type: 'error', 
+                text: err.response?.data?.error || 'Error uploading avatar' 
+            });
+        } finally {
+            setUploadingAvatar(false);
+        }
+    };
+
+    // NEW: Handle avatar removal
+    const handleRemoveAvatar = async () => {
+        if (!confirm('Are you sure you want to remove your avatar?')) return;
+
+        setLoading(true);
+        try {
+            await API.delete('/uploads/avatar', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            
+            setUser(prev => ({ ...prev, avatar: '' }));
+            setMsg({ type: 'success', text: 'Avatar removed successfully' });
+        } catch (err) {
+            console.error('Avatar removal error:', err);
+            setMsg({ type: 'error', text: 'Failed to remove avatar' });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -59,7 +134,6 @@ const ProfilePage = () => {
             setPic(null);
         } catch (err) {
             console.error('Profile update error:', err);
-            console.error('Error response:', err.response?.data);
             setMsg({ 
                 type: 'error', 
                 text: err.response?.data?.message || 'Error updating profile' 
@@ -93,9 +167,7 @@ const ProfilePage = () => {
         }
     };
 
-    const picSrc = user?.profilePic
-        ? `${BACKEND_URL}/uploads/${user.profilePic}`
-        : null;
+    const profileImageUrl = getProfileImageUrl();
 
     if (!user) {
         return (
@@ -128,17 +200,47 @@ const ProfilePage = () => {
                             <div className={styles.avatarContainer}>
                                 {picPreview ? (
                                     <img src={picPreview} alt="Preview" className={styles.avatar} />
-                                ) : picSrc ? (
-                                    <img src={picSrc} alt={user.name} className={styles.avatar} />
+                                ) : profileImageUrl ? (
+                                    <img src={profileImageUrl} alt={user.name} className={styles.avatar} />
                                 ) : (
                                     <div className={styles.defaultAvatar}>
                                         {user.name?.charAt(0).toUpperCase()}
                                     </div>
                                 )}
                             </div>
-                            <label htmlFor="profilePicInput" className={styles.avatarOverlay} title="Change photo">
-                                <span>📷</span>
-                                <span className={styles.overlayText}>Change Photo</span>
+                            
+                            {/* NEW: Cloudinary Avatar Upload Section */}
+                            <div className={styles.cloudinaryUpload}>
+                                <label htmlFor="cloudinaryAvatarInput" className={styles.avatarButton}>
+                                    {uploadingAvatar ? '⏳ Uploading...' : '📷 Upload New Avatar'}
+                                </label>
+                                <input
+                                    id="cloudinaryAvatarInput"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleAvatarUpload}
+                                    disabled={uploadingAvatar}
+                                    style={{ display: 'none' }}
+                                />
+                                
+                                {user.avatar && (
+                                    <button 
+                                        onClick={handleRemoveAvatar}
+                                        className={styles.removeAvatarButton}
+                                        disabled={loading}
+                                    >
+                                        🗑️ Remove Avatar
+                                    </button>
+                                )}
+                            </div>
+                            
+                            <div className={styles.uploadDivider}>
+                                <span>or</span>
+                            </div>
+                            
+                            <label htmlFor="profilePicInput" className={styles.avatarOverlay} title="Change local photo">
+                                <span>📁</span>
+                                <span className={styles.overlayText}>Upload Local Photo</span>
                             </label>
                             <input
                                 id="profilePicInput"
@@ -158,6 +260,11 @@ const ProfilePage = () => {
                             <div className={styles.roleBadge}>
                                 {user.role === 'admin' ? '👑 Administrator' : '👤 Member'}
                             </div>
+                            {user.avatar && (
+                                <div className={styles.avatarBadge}>
+                                    ✅ Using Cloudinary avatar (works on Vercel)
+                                </div>
+                            )}
                             {user.bio && (
                                 <div className={styles.bioBox}>
                                     <p>{user.bio}</p>
@@ -201,7 +308,7 @@ const ProfilePage = () => {
                                 </div>
 
                                 <div className={styles.formGroup}>
-                                    <label className={styles.label}>Profile Picture</label>
+                                    <label className={styles.label}>Local Profile Picture (Fallback)</label>
                                     <div className={styles.fileInputWrapper}>
                                         <input
                                             type="file"

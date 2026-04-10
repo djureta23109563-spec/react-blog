@@ -1,5 +1,3 @@
-// backend/models/User.js
-
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
@@ -44,16 +42,35 @@ const userSchema = new mongoose.Schema(
     profilePic: {
         type: String,
         default: ''
-    }
+    },
 
+    // NEW: Cloudinary avatar fields
+    avatar: {
+        type: String,
+        default: ''
+    },
+
+    avatarPublicId: {
+        type: String,
+        default: ''
+    },
+
+    avatarUpdatedAt: {
+        type: Date,
+        default: null
+    }
 },
 {
     timestamps: true
 }
 );
 
+// Virtual: Get the best available profile image
+userSchema.virtual('profileImage').get(function() {
+    return this.avatar || this.profilePic || '';
+});
+
 // ── Pre-save hook: hash password before storing ────────────────
-// FIXED: Removed the 'next' parameter and just return
 userSchema.pre('save', async function() {
     try {
         if (!this.isModified('password')) {
@@ -68,7 +85,7 @@ userSchema.pre('save', async function() {
         console.log('Password hashed successfully');
     } catch (error) {
         console.error('Error in password hashing:', error);
-        throw error; // Throw error instead of passing to next
+        throw error;
     }
 });
 
@@ -81,5 +98,9 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
         return false;
     }
 };
+
+// Enable virtuals when converting to JSON
+userSchema.set('toJSON', { virtuals: true });
+userSchema.set('toObject', { virtuals: true });
 
 module.exports = mongoose.model('User', userSchema);
