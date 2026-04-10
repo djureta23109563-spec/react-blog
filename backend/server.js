@@ -25,9 +25,12 @@ console.log('✅ messageRoutes loaded:', typeof messageRoutes);
 const deletedPostRoutes = require('./routes/deletedPost.routes');
 console.log('✅ deletedPostRoutes loaded:', typeof deletedPostRoutes);
 
-// NEW: Import upload routes
 const uploadRoutes = require('./routes/upload.routes');
 console.log('✅ uploadRoutes loaded:', typeof uploadRoutes);
+
+// NEW: Import password routes
+const passwordRoutes = require('./routes/password.routes');
+console.log('✅ passwordRoutes loaded:', typeof passwordRoutes);
 
 const app = express();
 
@@ -44,12 +47,13 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ── Routes ────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', passwordRoutes); // Password reset routes
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/deleted-posts', deletedPostRoutes);
-app.use('/api/uploads', uploadRoutes); // NEW: Add upload routes
+app.use('/api/uploads', uploadRoutes);
 
 // ── Health Check ──────────────────────────────────────────────
 app.get('/api/health', (req, res) => {

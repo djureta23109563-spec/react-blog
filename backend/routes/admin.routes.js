@@ -1,93 +1,131 @@
-// backend/routes/admin.routes.js
-
 const express = require('express');
-const User = require('../models/User');
-const Post = require('../models/Post');
-const { protect } = require('../middleware/auth.middleware');
-const { adminOnly } = require('../middleware/role.middleware');
-
 const router = express.Router();
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const { protect } = require('../middleware/auth.middleware');
+const upload = require('../middleware/upload');
 
-// All routes below require: (1) valid token AND (2) admin role
-router.use(protect, adminOnly);
-
-
-// GET /api/admin/users — List all non-admin members
-router.get('/users', async (req, res) => {
+// GET /api/auth/me - Get current user
+router.get('/me', protect, async (req, res) => {
     try {
-        const users = await User.find({ role: { $ne: 'admin' } })
-            .select('-password')
-            .sort({ createdAt: -1 });
-
-        res.json(users);
-
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+        const user = await User.findById(req.user._id).select('-password');
+        res.json({
+            ...user.toJSON(),
+            avatar: user.avatar || user.profilePic || ''
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });
 
-
-// PUT /api/admin/users/:id/status — Toggle member active/inactive
-router.put('/users/:id/status', async (req, res) => {
+// PUT /api/auth/profile - Update user profile
+router.put('/profile', protect, upload.single('profilePic'), async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
-
-        if (!user || user.role === 'admin') {
+        const user = await User.findById(req.user._id);
+        
+        if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
-        user.status = user.status === 'active' ? 'inactive' : 'active';
-
-        await user.save();
-
-        res.json({
-            message: `User is now ${user.status}`,
-            user
-        });
-
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
-
-
-// GET /api/admin/posts — List ALL posts including removed ones
-router.get('/posts', async (req, res) => {
-    try {
-        const posts = await Post.find()
-            .populate('author', 'name email')
-            .sort({ createdAt: -1 });
-
-        res.json(posts);
-
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
-
-
-// PUT /api/admin/posts/:id/remove — Mark post as removed (inappropriate)
-router.put('/posts/:id/remove', async (req, res) => {
-    try {
-        const post = await Post.findById(req.params.id);
-
-        if (!post) {
-            return res.status(404).json({ message: 'Post not found' });
+        
+        if (req.body.name) user.name = req.body.name;
+        if (req.body.bio !== undefined) user.bio = req.body.bio;
+        
+        if (req.file) {
+            user.profilePic = req.file.filename;
         }
-
-        post.status = 'removed';
-
-        await post.save();
-
+        
+        await user.save();
+        
+        const userData = user.toJSON();
+        userData.avatar = user.avatar || user.profilePic || '';
+        
         res.json({
-            message: 'Post has been removed',
-            post
+            success: true,
+            message: 'Profile updated successfully',
+            user: userData
         });
-
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        console.error('Profile update error:', error);
+        res.status(500).json({ message: error.message });
     }
 });
 
+// PUT /api/auth/change-password - Change password
+router.put('/change-password', protect, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: 'Please provide current and new password' });
+        }
+        
+        if (newPassword.length < 6) {
+            return res.status(400).json({ message: 'New password must be at least 6 characters' });
+        }
+        
+        const user = await User.findById(req.user._id);
+        
+        const isMatch = await user.matchPassword(currentPassword);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Current password is incorrect' });
+        }
+        
+        user.password = newPassword;
+        await user.save();
+        
+        res.json({
+            success: true,
+            message: 'Password changed successfully'
+        });
+    } catch (error) {
+        console.error('Password change error:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// GET /api/auth/members - Get all members
+router.get('/members', async (req, res) => {
+    try {
+        const members = await User.find(
+            { role: 'member', status: 'active' },
+            'name email role bio avatar profilePic createdAt'
+        ).sort({ createdAt: -1 });
+        
+        const membersWithAvatar = members.map(member => ({
+            ...member.toJSON(),
+            avatar: member.avatar || member.profilePic || ''
+        }));
+        
+        res.json({
+            success: true,
+            count: membersWithAvatar.length,
+            members: membersWithAvatar
+        });
+    } catch (error) {
+        console.error('Get members error:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// GET /api/auth/user/:id - Get user by ID
+router.get('/user/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id).select('name email role bio avatar profilePic createdAt');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        res.json({
+            success: true,
+            user: {
+                ...user.toJSON(),
+                avatar: user.avatar || user.profilePic || ''
+            }
+        });
+    } catch (error) {
+        console.error('Get user error:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
 
 module.exports = router;

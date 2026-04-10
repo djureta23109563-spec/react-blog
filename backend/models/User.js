@@ -58,6 +58,17 @@ const userSchema = new mongoose.Schema(
     avatarUpdatedAt: {
         type: Date,
         default: null
+    },
+
+    // NEW: Password reset fields
+    resetPasswordToken: {
+        type: String,
+        default: ''
+    },
+
+    resetPasswordExpires: {
+        type: Date,
+        default: null
     }
 },
 {

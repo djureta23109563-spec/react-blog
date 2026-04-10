@@ -21,6 +21,10 @@ import EditPostPage from './pages/EditPostPage';
 import AdminPage from './pages/AdminPage';
 import DeletedPostPage from './pages/DeletedPostPage';
 
+// NEW: Import forgot password pages
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+
 function App() {
   const location = useLocation();
   const isSplashPage = location.pathname === '/';
@@ -74,6 +78,18 @@ function App() {
           <Route path='/register' element={
             <PageTransition>
               <RegisterPage />
+            </PageTransition>
+          } />
+
+          {/* NEW: Forgot password routes */}
+          <Route path='/forgot-password' element={
+            <PageTransition>
+              <ForgotPasswordPage />
+            </PageTransition>
+          } />
+          <Route path='/reset-password/:token' element={
+            <PageTransition>
+              <ResetPasswordPage />
             </PageTransition>
           } />
 
