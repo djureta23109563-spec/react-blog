@@ -1,9 +1,10 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "vite",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
-  ],
-  "env": {
-    "REACT_APP_API_URL": "https://react-blog-7yna.onrender.com/api",
-    "REACT_APP_BACKEND_URL": "https://react-blog-7yna.onrender.com"
-  }
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
