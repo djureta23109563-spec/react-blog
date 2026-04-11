@@ -103,7 +103,8 @@ app.use((err, req, res, next) => {
 });
 
 // ── 404 Handler for undefined routes ──────────────────────────
-app.use('*', (req, res) => {
+// FIXED: Removed the '*' wildcard for Express 5.x compatibility
+app.use((req, res) => {
     res.status(404).json({ 
         message: `Cannot ${req.method} ${req.originalUrl} - Route not found`,
         availableEndpoints: '/api/health, /api/debug/routes'
