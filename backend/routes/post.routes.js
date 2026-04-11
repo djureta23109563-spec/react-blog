@@ -8,7 +8,7 @@ const upload = require('../middleware/upload');
 const cloudinary = require('../config/cloudinary');
 const router = express.Router();
 
-// GET /api/posts - Public: all published posts (newest first)
+// GET /api/posts - Public: all published posts
 router.get('/', async (req, res) => {
   try {
     const posts = await Post.find({ status: 'published' })
@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/posts/:id - Public: single post by ID
+// GET /api/posts/:id - Public: single post
 router.get('/:id', async (req, res) => {
   try {
     const post = await Post.findById(req.params.id).populate('author', 'name profilePic');
@@ -35,96 +35,69 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Helper function to upload image to Cloudinary
-const uploadToCloudinary = async (fileBuffer, mimetype) => {
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: 'blog-posts',
-        transformation: [
-          { width: 1200, height: 630, crop: 'fill' }
-        ]
-      },
-      (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
-      }
-    );
-    
-    // Convert buffer to stream
-    const buffer = Buffer.from(fileBuffer);
-    uploadStream.end(buffer);
-  });
-};
-
-// POST /api/posts - Member or Admin: create new post
+// POST /api/posts - Create new post
 router.post('/', protect, memberOrAdmin, upload.single('image'), async (req, res) => {
   try {
-    console.log('=== CREATE POST ATTEMPT ===');
-    console.log('User ID:', req.user?._id);
-    console.log('Title:', req.body.title);
+    console.log('=== CREATE POST ===');
     console.log('Has file:', !!req.file);
+    console.log('Title:', req.body.title);
     
     const { title, body } = req.body;
     
-    // Validate required fields
     if (!title || !body) {
       return res.status(400).json({ message: 'Title and body are required' });
     }
     
-    if (!title.trim() || !body.trim()) {
-      return res.status(400).json({ message: 'Title and body cannot be empty' });
-    }
-    
     let imageUrl = '';
     
-    // Upload image to Cloudinary if present
-    if (req.file && req.file.buffer) {
+    // Upload to Cloudinary if file exists
+    if (req.file) {
       try {
-        console.log('Uploading to Cloudinary...');
-        const result = await uploadToCloudinary(req.file.buffer, req.file.mimetype);
-        imageUrl = result.secure_url;
-        console.log('Cloudinary upload successful:', imageUrl);
+        // Handle both buffer (production) and path (local)
+        let uploadResult;
+        
+        if (req.file.buffer) {
+          // Production on Render - use buffer
+          const base64 = req.file.buffer.toString('base64');
+          const dataURI = `data:${req.file.mimetype};base64,${base64}`;
+          uploadResult = await cloudinary.uploader.upload(dataURI, {
+            folder: 'blog-posts'
+          });
+        } else if (req.file.path) {
+          // Local development - use file path
+          uploadResult = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'blog-posts'
+          });
+        }
+        
+        if (uploadResult) {
+          imageUrl = uploadResult.secure_url;
+          console.log('Uploaded to Cloudinary:', imageUrl);
+        }
       } catch (cloudinaryError) {
-        console.error('Cloudinary upload error:', cloudinaryError);
-        return res.status(500).json({ message: 'Image upload failed. Please try again.' });
+        console.error('Cloudinary error:', cloudinaryError);
+        return res.status(500).json({ message: 'Image upload to Cloudinary failed: ' + cloudinaryError.message });
       }
     }
     
-    // Create post with Cloudinary URL
-    const postData = {
+    const post = await Post.create({
       title: title.trim(),
       body: body.trim(),
-      image: imageUrl,  // Save Cloudinary URL, not filename
+      image: imageUrl,
       author: req.user._id,
       status: 'published'
-    };
+    });
     
-    console.log('Post data:', { ...postData, image: imageUrl ? 'URL present' : 'No image' });
-    
-    const post = await Post.create(postData);
-    console.log('Post created with ID:', post._id);
-    
-    // Populate author info
     await post.populate('author', 'name profilePic');
-    
-    console.log('=== POST CREATED SUCCESSFULLY ===');
     res.status(201).json(post);
     
   } catch (err) {
-    console.error('=== ERROR CREATING POST ===');
-    console.error('Error:', err.message);
-    
-    if (err.name === 'ValidationError') {
-      const messages = Object.values(err.errors).map(e => e.message);
-      return res.status(400).json({ message: messages.join(', ') });
-    }
-    
-    res.status(500).json({ message: 'Server error: ' + err.message });
+    console.error('Error creating post:', err);
+    res.status(500).json({ message: err.message });
   }
 });
 
-// PUT /api/posts/:id - Edit: only post owner OR admin
+// PUT /api/posts/:id - Update post
 router.put('/:id', protect, memberOrAdmin, upload.single('image'), async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -132,31 +105,36 @@ router.put('/:id', protect, memberOrAdmin, upload.single('image'), async (req, r
       return res.status(404).json({ message: 'Post not found' });
     }
     
-    // Check authorization
     const isOwner = post.author.toString() === req.user._id.toString();
     const isAdmin = req.user.role === 'admin';
     if (!isOwner && !isAdmin) {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    // Update fields
     if (req.body.title) post.title = req.body.title;
     if (req.body.body) post.body = req.body.body;
     
-    // Upload new image to Cloudinary if provided
-    if (req.file && req.file.buffer) {
-      try {
-        // Delete old image from Cloudinary if exists
-        if (post.image && post.image.includes('cloudinary')) {
-          const publicId = post.image.split('/').slice(-2).join('/').split('.')[0];
-          await cloudinary.uploader.destroy(publicId);
-        }
-        
-        const result = await uploadToCloudinary(req.file.buffer, req.file.mimetype);
-        post.image = result.secure_url;
-      } catch (cloudinaryError) {
-        console.error('Cloudinary upload error:', cloudinaryError);
-        return res.status(500).json({ message: 'Image upload failed' });
+    if (req.file) {
+      // Delete old image if exists
+      if (post.image && post.image.includes('cloudinary')) {
+        try {
+          const publicId = post.image.split('/').pop().split('.')[0];
+          await cloudinary.uploader.destroy(`blog-posts/${publicId}`);
+        } catch (e) { console.log('Delete old image failed:', e); }
+      }
+      
+      // Upload new image
+      let uploadResult;
+      if (req.file.buffer) {
+        const base64 = req.file.buffer.toString('base64');
+        const dataURI = `data:${req.file.mimetype};base64,${base64}`;
+        uploadResult = await cloudinary.uploader.upload(dataURI, { folder: 'blog-posts' });
+      } else if (req.file.path) {
+        uploadResult = await cloudinary.uploader.upload(req.file.path, { folder: 'blog-posts' });
+      }
+      
+      if (uploadResult) {
+        post.image = uploadResult.secure_url;
       }
     }
     
@@ -184,15 +162,14 @@ router.put('/:id/remove', protect, memberOrAdmin, async (req, res) => {
 
     post.status = 'removed';
     await post.save();
-    
-    res.json({ message: 'Post removed successfully', post });
+    res.json({ message: 'Post removed successfully' });
   } catch (err) {
     console.error('Error removing post:', err);
     res.status(500).json({ message: err.message });
   }
 });
 
-// DELETE /api/posts/:id - Permanently delete (admin only)
+// DELETE /api/posts/:id - Permanently delete
 router.delete('/:id', protect, memberOrAdmin, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -201,23 +178,21 @@ router.delete('/:id', protect, memberOrAdmin, async (req, res) => {
     }
 
     if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Only admins can permanently delete posts' });
+      return res.status(403).json({ message: 'Admins only' });
     }
 
-    // Delete image from Cloudinary if exists
+    // Delete image from Cloudinary
     if (post.image && post.image.includes('cloudinary')) {
       try {
-        const publicId = post.image.split('/').slice(-2).join('/').split('.')[0];
-        await cloudinary.uploader.destroy(publicId);
-      } catch (err) {
-        console.log('Failed to delete image from Cloudinary:', err);
-      }
+        const publicId = post.image.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(`blog-posts/${publicId}`);
+      } catch (e) { console.log('Delete image failed:', e); }
     }
 
     await post.deleteOne();
     res.json({ message: 'Post permanently deleted' });
   } catch (err) {
-    console.error('Error permanently deleting post:', err);
+    console.error('Error deleting post:', err);
     res.status(500).json({ message: err.message });
   }
 });
