@@ -49,7 +49,7 @@ const generateFilename = (originalname) => {
   return `${timestamp}-${random}${extension}`;
 };
 
-// POST /api/posts - Create new post
+// POST /api/posts - Create new post with image upload
 router.post('/', protect, memberOrAdmin, upload.single('image'), async (req, res) => {
   try {
     console.log('=== CREATE POST ===');
@@ -66,16 +66,23 @@ router.post('/', protect, memberOrAdmin, upload.single('image'), async (req, res
     
     // If file was uploaded
     if (req.file) {
-      // Generate a unique filename
-      const originalName = req.file.originalname || 'image.png';
-      imageFilename = generateFilename(originalName);
-      console.log('Generated filename:', imageFilename);
-      console.log('File buffer size:', req.file.buffer?.length);
-      
-      // Save the file to disk
-      const filePath = path.join(uploadDir, imageFilename);
-      fs.writeFileSync(filePath, req.file.buffer);
-      console.log('File saved to:', filePath);
+      try {
+        // Generate a unique filename
+        const originalName = req.file.originalname || 'image.png';
+        imageFilename = generateFilename(originalName);
+        console.log('Generated filename:', imageFilename);
+        console.log('File buffer size:', req.file.buffer ? req.file.buffer.length : 'No buffer');
+        
+        // Save the file to disk (Render will keep it temporarily)
+        const filePath = path.join(uploadDir, imageFilename);
+        fs.writeFileSync(filePath, req.file.buffer);
+        console.log('File saved to:', filePath);
+        console.log('File exists:', fs.existsSync(filePath));
+      } catch (fileError) {
+        console.error('File save error:', fileError);
+        // Continue without image if save fails
+        imageFilename = '';
+      }
     }
     
     const post = await Post.create({
@@ -88,7 +95,7 @@ router.post('/', protect, memberOrAdmin, upload.single('image'), async (req, res
     
     await post.populate('author', 'name profilePic');
     console.log('Post created successfully, ID:', post._id);
-    console.log('Image saved in DB:', post.image);
+    console.log('Image saved in DB:', post.image || '(no image)');
     
     res.status(201).json(post);
     
@@ -114,22 +121,26 @@ router.put('/:id', protect, memberOrAdmin, upload.single('image'), async (req, r
     if (req.body.body) post.body = req.body.body;
     
     if (req.file) {
-      // Delete old image if exists
-      if (post.image) {
-        const oldPath = path.join(uploadDir, post.image);
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
-          console.log('Deleted old image:', oldPath);
+      try {
+        // Delete old image if exists
+        if (post.image) {
+          const oldPath = path.join(uploadDir, post.image);
+          if (fs.existsSync(oldPath)) {
+            fs.unlinkSync(oldPath);
+            console.log('Deleted old image:', oldPath);
+          }
         }
+        
+        // Save new image
+        const originalName = req.file.originalname || 'image.png';
+        const newFilename = generateFilename(originalName);
+        const filePath = path.join(uploadDir, newFilename);
+        fs.writeFileSync(filePath, req.file.buffer);
+        post.image = newFilename;
+        console.log('Updated image saved:', newFilename);
+      } catch (fileError) {
+        console.error('File save error:', fileError);
       }
-      
-      // Save new image
-      const originalName = req.file.originalname || 'image.png';
-      const newFilename = generateFilename(originalName);
-      const filePath = path.join(uploadDir, newFilename);
-      fs.writeFileSync(filePath, req.file.buffer);
-      post.image = newFilename;
-      console.log('Updated image saved:', newFilename);
     }
     
     await post.save();
@@ -187,7 +198,5 @@ router.delete('/:id', protect, memberOrAdmin, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
-// DO NOT add app.use here - static serving is already in server.js
 
 module.exports = router;
