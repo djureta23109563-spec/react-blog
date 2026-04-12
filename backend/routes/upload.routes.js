@@ -1,14 +1,30 @@
 const express = require('express');
 const router = express.Router();
-const cloudinary = require('../config/cloudinary');
 const upload = require('../middleware/upload');
 const User = require('../models/User');
 const { protect } = require('../middleware/auth.middleware');
+const fs = require('fs');
+const path = require('path');
 
-// Upload avatar to Cloudinary
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+    console.log('Created uploads directory:', uploadDir);
+}
+
+// Helper function to generate unique filename
+const generateFilename = (originalname) => {
+    const timestamp = Date.now();
+    const random = Math.round(Math.random() * 1e9);
+    const extension = path.extname(originalname);
+    return `avatar-${timestamp}-${random}${extension}`;
+};
+
+// Upload avatar locally
 router.post('/avatar', protect, upload.single('avatar'), async (req, res) => {
     try {
-        console.log('=== AVATAR UPLOAD START ===');
+        console.log('=== AVATAR UPLOAD (LOCAL) ===');
         console.log('User ID:', req.user._id);
         
         if (!req.file) {
@@ -18,86 +34,63 @@ router.post('/avatar', protect, upload.single('avatar'), async (req, res) => {
         console.log('File received:', {
             originalname: req.file.originalname,
             mimetype: req.file.mimetype,
-            size: req.file.size,
-            hasBuffer: !!req.file.buffer
+            size: req.file.size
         });
 
-        // Handle both buffer (memory storage) and path (disk storage)
-        let result;
+        let imageFilename = '';
         
+        // Generate unique filename and save locally
         if (req.file.buffer) {
             // Memory storage (production on Render)
-            console.log('Uploading from buffer to Cloudinary...');
-            const fileStr = req.file.buffer.toString('base64');
-            const fileData = `data:${req.file.mimetype};base64,${fileStr}`;
-            
-            result = await cloudinary.uploader.upload(fileData, {
-                folder: 'member-avatars',
-                transformation: [
-                    { width: 300, height: 300, crop: 'fill', gravity: 'face' }
-                ]
-            });
-            console.log('Cloudinary upload successful from buffer');
+            const originalName = req.file.originalname || 'avatar.png';
+            imageFilename = generateFilename(originalName);
+            const filePath = path.join(uploadDir, imageFilename);
+            fs.writeFileSync(filePath, req.file.buffer);
+            console.log('File saved from buffer to:', filePath);
         } else if (req.file.path) {
             // Disk storage (local development)
-            console.log('Uploading from path to Cloudinary...');
-            result = await cloudinary.uploader.upload(req.file.path, {
-                folder: 'member-avatars',
-                transformation: [
-                    { width: 300, height: 300, crop: 'fill', gravity: 'face' }
-                ]
-            });
-            console.log('Cloudinary upload successful from path');
-            
-            // Clean up local file after upload
-            const fs = require('fs');
-            if (fs.existsSync(req.file.path)) {
-                fs.unlinkSync(req.file.path);
-            }
+            imageFilename = req.file.filename;
+            console.log('File already saved to:', req.file.path);
         } else {
             return res.status(400).json({ error: 'Invalid file upload' });
         }
 
-        console.log('Cloudinary result:', {
-            secure_url: result.secure_url,
-            public_id: result.public_id
-        });
+        // Get the full URL for the image
+        const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+        const imageUrl = `${backendUrl}/uploads/${imageFilename}`;
 
-        // Delete old Cloudinary avatar if exists
+        // Get user and delete old profile picture if exists
         const user = await User.findById(req.user._id);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
         
-        if (user.avatarPublicId) {
-            try {
-                console.log('Deleting old avatar:', user.avatarPublicId);
-                await cloudinary.uploader.destroy(user.avatarPublicId);
-            } catch (err) {
-                console.log('Old avatar deletion failed:', err);
+        // Delete old profile picture file if it exists and is local
+        if (user.profilePic && !user.profilePic.startsWith('http')) {
+            const oldPath = path.join(uploadDir, user.profilePic);
+            if (fs.existsSync(oldPath)) {
+                fs.unlinkSync(oldPath);
+                console.log('Deleted old profile picture:', oldPath);
             }
         }
 
-        // Update user with BOTH avatar and profilePic fields
-        user.avatar = result.secure_url;
-        user.avatarPublicId = result.public_id;
-        user.avatarUpdatedAt = new Date();
-        user.profilePic = result.secure_url; // CRITICAL: Also update profilePic for frontend compatibility
+        // Update user with new profile picture
+        user.profilePic = imageFilename;
+        user.avatar = imageFilename; // Also update avatar field for compatibility
         await user.save();
 
-        console.log('User updated successfully. Avatar URL:', user.avatar);
-        console.log('ProfilePic URL:', user.profilePic);
+        console.log('User updated successfully. Profile pic:', user.profilePic);
 
         res.json({
             success: true,
-            message: 'Avatar uploaded successfully',
-            avatarUrl: result.secure_url,
+            message: 'Profile picture uploaded successfully',
+            avatarUrl: imageUrl,
             user: {
                 id: user._id,
                 name: user.name,
                 email: user.email,
                 avatar: user.avatar,
-                profilePic: user.profilePic, // Include profilePic in response
+                profilePic: user.profilePic,
                 role: user.role
             }
         });
@@ -116,14 +109,14 @@ router.get('/avatar/:userId', async (req, res) => {
         }
         
         let avatarUrl = '';
+        const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
         
-        if (user.avatar) {
+        if (user.avatar && user.avatar.startsWith('http')) {
             avatarUrl = user.avatar;
         } else if (user.profilePic) {
             if (user.profilePic.startsWith('http')) {
                 avatarUrl = user.profilePic;
             } else {
-                const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
                 avatarUrl = `${backendUrl}/uploads/${user.profilePic}`;
             }
         }
@@ -131,7 +124,7 @@ router.get('/avatar/:userId', async (req, res) => {
         res.json({ 
             url: avatarUrl,
             name: user.name,
-            hasAvatar: !!user.avatar
+            hasAvatar: !!user.profilePic
         });
     } catch (error) {
         console.error('Error fetching avatar:', error);
@@ -148,24 +141,22 @@ router.delete('/avatar', protect, async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        if (user.avatarPublicId) {
-            try {
-                await cloudinary.uploader.destroy(user.avatarPublicId);
-                console.log('Cloudinary deletion successful');
-            } catch (err) {
-                console.log('Cloudinary deletion failed:', err);
+        // Delete profile picture file
+        if (user.profilePic && !user.profilePic.startsWith('http')) {
+            const imagePath = path.join(uploadDir, user.profilePic);
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+                console.log('Deleted profile picture:', imagePath);
             }
         }
 
         user.avatar = '';
-        user.avatarPublicId = '';
-        user.avatarUpdatedAt = null;
-        user.profilePic = ''; // Also clear profilePic
+        user.profilePic = '';
         await user.save();
 
         res.json({
             success: true,
-            message: 'Avatar removed successfully',
+            message: 'Profile picture removed successfully',
             user: {
                 id: user._id,
                 name: user.name,
@@ -177,7 +168,7 @@ router.delete('/avatar', protect, async (req, res) => {
         });
     } catch (error) {
         console.error('Error removing avatar:', error);
-        res.status(500).json({ error: 'Failed to remove avatar' });
+        res.status(500).json({ error: 'Failed to remove profile picture' });
     }
 });
 
@@ -185,13 +176,16 @@ router.delete('/avatar', protect, async (req, res) => {
 router.get('/my-avatar', protect, async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('avatar profilePic name email role');
+        const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
         
-        let avatarUrl = user.avatar;
-        if (!avatarUrl && user.profilePic) {
+        let avatarUrl = '';
+        
+        if (user.avatar && user.avatar.startsWith('http')) {
+            avatarUrl = user.avatar;
+        } else if (user.profilePic) {
             if (user.profilePic.startsWith('http')) {
                 avatarUrl = user.profilePic;
             } else {
-                const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
                 avatarUrl = `${backendUrl}/uploads/${user.profilePic}`;
             }
         }
