@@ -11,22 +11,21 @@ function Navbar() {
   const [avatarError, setAvatarError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useState('light');
+  const [showDropdown, setShowDropdown] = useState(false);
   
-  // For Vite, use import.meta.env for backend URL
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
-  // Load theme from localStorage on mount
+  // Load theme from localStorage
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'light';
     setTheme(savedTheme);
     document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
 
-  // Load user data from localStorage and API on mount
+  // Load user data
   useEffect(() => {
     loadUserData();
     
-    // Listen for profile updates (from ProfilePage)
     const handleUserUpdate = () => {
       loadUserData();
     };
@@ -43,24 +42,29 @@ function Navbar() {
       setLoading(true);
       const token = localStorage.getItem('token');
       
+      console.log('Navbar loading - token exists:', !!token);
+      
       if (!token) {
         setUser(null);
         setLoading(false);
         return;
       }
       
-      // Fetch fresh user data from API
       const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
       
+      console.log('Navbar fetch response status:', response.status);
+      
       if (response.ok) {
         const userData = await response.json();
+        console.log('Navbar loaded user:', userData.name, 'Role:', userData.role);
         setUser(userData);
         setAvatarError(false);
       } else {
+        console.log('Token invalid, removing');
         localStorage.removeItem('token');
         setUser(null);
       }
@@ -85,20 +89,15 @@ function Navbar() {
     document.documentElement.setAttribute('data-theme', newTheme);
   };
 
-  // Get profile image URL
   const getProfileImageUrl = () => {
     if (avatarError) return null;
     
     if (user?.profilePic) {
-      if (user.profilePic.startsWith('http')) {
-        return user.profilePic;
-      }
+      if (user.profilePic.startsWith('http')) return user.profilePic;
       return `${BACKEND_URL}/uploads/${user.profilePic}`;
     }
     if (user?.avatar) {
-      if (user.avatar.startsWith('http')) {
-        return user.avatar;
-      }
+      if (user.avatar.startsWith('http')) return user.avatar;
       return `${BACKEND_URL}/uploads/${user.avatar}`;
     }
     return null;
@@ -106,13 +105,14 @@ function Navbar() {
 
   const profileImageUrl = getProfileImageUrl();
 
+  // Show loading state
   if (loading) {
     return (
       <header className={styles.header}>
         <div className={styles.container}>
           <Link to="/home" className={styles.logo}>
             <div className={styles.logoMark}>
-              <svg className={styles.logoSvg} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg className={styles.logoSvg} viewBox="0 0 40 40" fill="none">
                 <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="2" fill="none"/>
                 <path d="M12 16 L20 12 L28 16 L20 28 Z" stroke="currentColor" strokeWidth="2" fill="none"/>
                 <circle cx="20" cy="20" r="3" fill="currentColor"/>
@@ -128,10 +128,11 @@ function Navbar() {
     );
   }
 
+  console.log('Navbar rendering - user exists:', !!user, 'user role:', user?.role);
+
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        {/* Custom Logo */}
         <Link to="/home" className={styles.logo}>
           <div className={styles.logoMark}>
             <svg className={styles.logoSvg} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -149,97 +150,70 @@ function Navbar() {
           </div>
         </Link>
 
-        {/* Navigation Menu */}
         <nav className={styles.nav}>
           <ul className={styles.navList}>
             <li>
-              <Link 
-                to="/home" 
-                className={`${styles.navLink} ${location.pathname === '/home' ? styles.active : ''}`}
-              >
+              <Link to="/home" className={`${styles.navLink} ${location.pathname === '/home' ? styles.active : ''}`}>
                 <span className={styles.navIcon}>🏠</span>
                 <span>Home</span>
               </Link>
             </li>
-            
             <li>
-              <Link 
-                to="/about" 
-                className={`${styles.navLink} ${location.pathname === '/about' ? styles.active : ''}`}
-              >
+              <Link to="/about" className={`${styles.navLink} ${location.pathname === '/about' ? styles.active : ''}`}>
                 <span className={styles.navIcon}>📖</span>
                 <span>About</span>
               </Link>
             </li>
-
             <li>
-              <Link 
-                to="/contact" 
-                className={`${styles.navLink} ${location.pathname === '/contact' ? styles.active : ''}`}
-              >
+              <Link to="/contact" className={`${styles.navLink} ${location.pathname === '/contact' ? styles.active : ''}`}>
                 <span className={styles.navIcon}>✉️</span>
                 <span>Contact</span>
               </Link>
             </li>
 
             {!user ? (
-              /* Guest Links */
               <>
                 <li>
-                  <Link 
-                    to="/login"
-                    className={`${styles.navLink} ${location.pathname === '/login' ? styles.active : ''}`}
-                  >
+                  <Link to="/login" className={`${styles.navLink} ${location.pathname === '/login' ? styles.active : ''}`}>
                     <span className={styles.navIcon}>🔐</span>
                     <span>Login</span>
                   </Link>
                 </li>
                 <li>
-                  <Link 
-                    to="/register"
-                    className={`${styles.signupLink} ${location.pathname === '/register' ? styles.active : ''}`}
-                  >
+                  <Link to="/register" className={`${styles.signupLink} ${location.pathname === '/register' ? styles.active : ''}`}>
                     <span className={styles.navIcon}>✨</span>
                     <span>Sign Up</span>
                   </Link>
                 </li>
               </>
             ) : (
-              /* Logged-in User Links */
               <>
                 <li>
-                  <Link 
-                    to="/create-post"
-                    className={`${styles.navLink} ${location.pathname === '/create-post' ? styles.active : ''}`}
-                  >
+                  <Link to="/create-post" className={`${styles.navLink} ${location.pathname === '/create-post' ? styles.active : ''}`}>
                     <span className={styles.navIcon}>✍️</span>
                     <span>Write</span>
                   </Link>
                 </li>
                 
-                {/* Admin Dashboard Link */}
                 {user.role === 'admin' && (
                   <li>
-                    <Link 
-                      to="/admin"
-                      className={`${styles.navLink} ${location.pathname === '/admin' ? styles.active : ''}`}
-                    >
+                    <Link to="/admin" className={`${styles.navLink} ${location.pathname === '/admin' ? styles.active : ''}`}>
                       <span className={styles.navIcon}>⚙️</span>
                       <span>Admin Dashboard</span>
                     </Link>
                   </li>
                 )}
 
-                {/* User Menu Dropdown */}
                 <li className={styles.userMenu}>
-                  <button className={styles.userButton}>
+                  <button 
+                    className={styles.userButton}
+                    onClick={() => setShowDropdown(!showDropdown)}
+                    onMouseEnter={() => setShowDropdown(true)}
+                    onMouseLeave={() => setShowDropdown(false)}
+                  >
                     <div className={styles.avatar}>
                       {profileImageUrl ? (
-                        <img 
-                          src={profileImageUrl} 
-                          alt={user.name}
-                          onError={() => setAvatarError(true)}
-                        /> 
+                        <img src={profileImageUrl} alt={user.name} onError={() => setAvatarError(true)} /> 
                       ) : (
                         <span className={styles.avatarInitial}>{user.name?.charAt(0).toUpperCase()}</span>
                       )}
@@ -248,8 +222,11 @@ function Navbar() {
                     <span className={styles.dropdownArrow}>▼</span>
                   </button>
                   
-                  {/* DROPDOWN MENU - Profile and Logout */}
-                  <div className={styles.dropdown}>
+                  <div 
+                    className={styles.dropdown}
+                    onMouseEnter={() => setShowDropdown(true)}
+                    onMouseLeave={() => setShowDropdown(false)}
+                  >
                     <Link to="/profile" className={styles.dropdownItem}>
                       <span className={styles.dropdownIcon}>👤</span>
                       <span>Profile</span>
@@ -263,13 +240,8 @@ function Navbar() {
               </>
             )}
 
-            {/* Dark Mode Toggle */}
             <li>
-              <button 
-                onClick={toggleTheme} 
-                className={styles.themeToggle}
-                aria-label="Toggle theme"
-              >
+              <button onClick={toggleTheme} className={styles.themeToggle} aria-label="Toggle theme">
                 {theme === 'dark' ? (
                   <span className={styles.themeIcon}>☀️</span>
                 ) : (
