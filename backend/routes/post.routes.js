@@ -34,12 +34,12 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/posts - Create new post with LOCAL image storage
-router.post('/', protect, memberOrAdmin, upload.single('image'), async (req, res) => {
+// POST /api/posts - Create new post (DEBUG VERSION)
+router.post('/', protect, memberOrAdmin, async (req, res) => {
   try {
-    console.log('=== CREATE POST ===');
-    console.log('Title:', req.body.title);
-    console.log('Has file:', !!req.file);
+    console.log('=== CREATE POST (DEBUG) ===');
+    console.log('Content-Type:', req.headers['content-type']);
+    console.log('Body:', req.body);
     
     const { title, body } = req.body;
     
@@ -47,48 +47,32 @@ router.post('/', protect, memberOrAdmin, upload.single('image'), async (req, res
       return res.status(400).json({ message: 'Title and body are required' });
     }
     
-    let imageUrl = '';
-    
-    // Save image filename if uploaded
-    if (req.file) {
-      imageUrl = req.file.filename;
-      console.log('Image saved:', imageUrl);
-      
-      // If using memory storage (Render), save the file to disk
-      if (req.file.buffer && !req.file.path) {
-        const uploadDir = path.join(__dirname, '..', 'uploads');
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        const filePath = path.join(uploadDir, req.file.filename);
-        fs.writeFileSync(filePath, req.file.buffer);
-        console.log('File saved from buffer to:', filePath);
-      }
-    }
-    
+    // Create post WITHOUT image for now
     const postData = {
       title: title.trim(),
       body: body.trim(),
-      image: imageUrl,
+      image: '',
       author: req.user._id,
       status: 'published'
     };
     
+    console.log('Creating post:', postData);
+    
     const post = await Post.create(postData);
-    console.log('Post created successfully, ID:', post._id);
+    console.log('Post created:', post._id);
     
     await post.populate('author', 'name profilePic');
     
     res.status(201).json(post);
     
   } catch (err) {
-    console.error('Error creating post:', err);
+    console.error('Error:', err);
     res.status(500).json({ message: err.message });
   }
 });
 
 // PUT /api/posts/:id - Update post
-router.put('/:id', protect, memberOrAdmin, upload.single('image'), async (req, res) => {
+router.put('/:id', protect, memberOrAdmin, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: 'Post not found' });
@@ -101,21 +85,6 @@ router.put('/:id', protect, memberOrAdmin, upload.single('image'), async (req, r
 
     if (req.body.title) post.title = req.body.title;
     if (req.body.body) post.body = req.body.body;
-    
-    if (req.file) {
-      post.image = req.file.filename;
-      
-      // Save file from buffer if needed
-      if (req.file.buffer && !req.file.path) {
-        const uploadDir = path.join(__dirname, '..', 'uploads');
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        const filePath = path.join(uploadDir, req.file.filename);
-        fs.writeFileSync(filePath, req.file.buffer);
-        console.log('Updated image saved to:', filePath);
-      }
-    }
     
     await post.save();
     res.json(post);
@@ -154,15 +123,6 @@ router.delete('/:id', protect, memberOrAdmin, async (req, res) => {
 
     if (req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Admins only' });
-    }
-
-    // Delete the image file if it exists
-    if (post.image) {
-      const imagePath = path.join(__dirname, '..', 'uploads', post.image);
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-        console.log('Deleted image file:', imagePath);
-      }
     }
 
     await post.deleteOne();
