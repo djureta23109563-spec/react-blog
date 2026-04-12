@@ -3,21 +3,60 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useState, useEffect } from 'react';
 import styles from '../styles/Navbar.module.css';
 
 function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const [avatarError, setAvatarError] = useState(false);
 
   // For Vite, use import.meta.env for backend URL
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
+  // Listen for profile updates
+  useEffect(() => {
+    const handleUserUpdate = () => {
+      console.log('Navbar: Profile updated, refreshing user data...');
+      if (refreshUser) {
+        refreshUser();
+      }
+    };
+    
+    window.addEventListener('userDataUpdated', handleUserUpdate);
+    
+    return () => {
+      window.removeEventListener('userDataUpdated', handleUserUpdate);
+    };
+  }, [refreshUser]);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
+
+  // Get profile image URL with better error handling
+  const getProfileImageUrl = () => {
+    if (avatarError) return null;
+    
+    if (user?.profilePic) {
+      if (user.profilePic.startsWith('http')) {
+        return user.profilePic;
+      }
+      return `${BACKEND_URL}/uploads/${user.profilePic}`;
+    }
+    if (user?.avatar) {
+      if (user.avatar.startsWith('http')) {
+        return user.avatar;
+      }
+      return `${BACKEND_URL}/uploads/${user.avatar}`;
+    }
+    return null;
+  };
+
+  const profileImageUrl = getProfileImageUrl();
 
   return (
     <header className={styles.header}>
@@ -125,11 +164,12 @@ function Navbar() {
                 <li className={styles.userMenu}>
                   <button className={styles.userButton}>
                     <div className={styles.avatar}>
-                      {user.profilePic ? (
+                      {profileImageUrl ? (
                         <img 
-                          src={`${BACKEND_URL}/uploads/${user.profilePic}`} 
-                          alt={user.name} 
-                        />
+                          src={profileImageUrl} 
+                          alt={user.name}
+                          onError={() => setAvatarError(true)}
+                        /> 
                       ) : (
                         <span className={styles.avatarInitial}>{user.name?.charAt(0).toUpperCase()}</span>
                       )}
