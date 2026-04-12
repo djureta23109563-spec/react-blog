@@ -35,6 +35,7 @@ const PostPage = () => {
       console.log('Fetching post with ID:', id);
       const { data } = await API.get(`/posts/${id}`);
       console.log('Post data:', data);
+      console.log('Image value:', data.image);
       setPost(data);
       setError('');
     } catch (err) {
@@ -77,12 +78,10 @@ const PostPage = () => {
     }
   };
 
-  // ✅ FIXED: Use the correct endpoint for removing a post
   const handleDeletePost = async () => {
     if (!window.confirm('Are you sure you want to delete this post?')) return;
     
     try {
-      // Use PUT to /posts/:id/remove (soft delete), not DELETE
       await API.put(`/posts/${id}/remove`);
       alert('Post deleted successfully!');
       navigate('/home');
@@ -112,6 +111,14 @@ const PostPage = () => {
   const canDeleteComment = (comment) => {
     if (!user || !comment) return false;
     return user.role === 'admin' || comment.author?._id === user._id;
+  };
+
+  // Helper function to get image URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith('http')) return imagePath;
+    if (imagePath.startsWith('/uploads')) return `${BACKEND_URL}${imagePath}`;
+    return `${BACKEND_URL}/uploads/${imagePath}`;
   };
 
   if (loading) {
@@ -187,9 +194,13 @@ const PostPage = () => {
         {post.image && (
           <div className={styles.postImageContainer}>
             <img 
-              src={`${BACKEND_URL}/uploads/${post.image}`}
+              src={getImageUrl(post.image)}
               alt={post.title}
               className={styles.postImage}
+              onError={(e) => {
+                console.error('Image failed to load:', e.target.src);
+                e.target.style.display = 'none';
+              }}
             />
           </div>
         )}
