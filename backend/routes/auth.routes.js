@@ -4,6 +4,14 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { protect } = require('../middleware/auth.middleware');
 const upload = require('../middleware/upload');
+const fs = require('fs');
+const path = require('path');
+
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // ========== ADD THESE MISSING ROUTES ==========
 
@@ -112,32 +120,90 @@ router.get('/me', protect, async (req, res) => {
     }
 });
 
-// PUT /api/auth/profile - Update user profile
+// PUT /api/auth/profile - Update user profile (FIXED)
 router.put('/profile', protect, upload.single('profilePic'), async (req, res) => {
     try {
+        console.log('=== PROFILE UPDATE ===');
+        console.log('User ID:', req.user._id);
+        console.log('Has file:', !!req.file);
+        
         const user = await User.findById(req.user._id);
         
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
         
+        // Update text fields
         if (req.body.name) user.name = req.body.name;
         if (req.body.bio !== undefined) user.bio = req.body.bio;
         
+        // Handle profile picture upload
         if (req.file) {
-            user.profilePic = req.file.filename;
+            console.log('File received:', req.file.originalname);
+            
+            // Generate unique filename
+            const timestamp = Date.now();
+            const random = Math.round(Math.random() * 1e9);
+            const extension = path.extname(req.file.originalname);
+            const filename = `profile-${timestamp}-${random}${extension}`;
+            
+            // Save file to disk
+            const filePath = path.join(uploadDir, filename);
+            
+            if (req.file.buffer) {
+                // Memory storage (Render)
+                fs.writeFileSync(filePath, req.file.buffer);
+                console.log('File saved from buffer to:', filePath);
+            } else if (req.file.path) {
+                // Disk storage (local)
+                fs.renameSync(req.file.path, filePath);
+                console.log('File moved to:', filePath);
+            }
+            
+            // Delete old profile picture if exists and not a URL
+            if (user.profilePic && !user.profilePic.startsWith('http')) {
+                const oldPath = path.join(uploadDir, user.profilePic);
+                if (fs.existsSync(oldPath)) {
+                    fs.unlinkSync(oldPath);
+                    console.log('Deleted old profile pic:', oldPath);
+                }
+            }
+            
+            // Update user with new filename
+            user.profilePic = filename;
+            user.avatar = filename; // Also update avatar field for compatibility
+            
+            console.log('Profile picture saved as:', filename);
         }
         
         await user.save();
         
-        const userData = user.toJSON();
-        userData.avatar = user.avatar || user.profilePic || '';
+        // Get the full URL for the image
+        const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+        const profilePicUrl = user.profilePic ? 
+            (user.profilePic.startsWith('http') ? user.profilePic : `${backendUrl}/uploads/${user.profilePic}`) : '';
+        
+        const userData = {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            bio: user.bio,
+            profilePic: user.profilePic,
+            avatar: user.avatar,
+            profilePicUrl: profilePicUrl,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+        };
+        
+        console.log('Profile updated successfully. Profile pic:', user.profilePic);
         
         res.json({
             success: true,
             message: 'Profile updated successfully',
             user: userData
         });
+        
     } catch (error) {
         console.error('Profile update error:', error);
         res.status(500).json({ message: error.message });
@@ -185,10 +251,17 @@ router.get('/members', async (req, res) => {
             'name email role bio avatar profilePic createdAt'
         ).sort({ createdAt: -1 });
         
-        const membersWithAvatar = members.map(member => ({
-            ...member.toJSON(),
-            avatar: member.avatar || member.profilePic || ''
-        }));
+        const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+        
+        const membersWithAvatar = members.map(member => {
+            const profilePicUrl = member.profilePic ? 
+                (member.profilePic.startsWith('http') ? member.profilePic : `${backendUrl}/uploads/${member.profilePic}`) : '';
+            
+            return {
+                ...member.toJSON(),
+                avatar: profilePicUrl || member.avatar || ''
+            };
+        });
         
         res.json({
             success: true,
@@ -209,11 +282,15 @@ router.get('/user/:id', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
         
+        const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+        const profilePicUrl = user.profilePic ? 
+            (user.profilePic.startsWith('http') ? user.profilePic : `${backendUrl}/uploads/${user.profilePic}`) : '';
+        
         res.json({
             success: true,
             user: {
                 ...user.toJSON(),
-                avatar: user.avatar || user.profilePic || ''
+                avatar: profilePicUrl || user.avatar || ''
             }
         });
     } catch (error) {
