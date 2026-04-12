@@ -9,6 +9,13 @@ const fs = require('fs');
 const path = require('path');
 const router = express.Router();
 
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log('Created uploads directory:', uploadDir);
+}
+
 // GET /api/posts - Public: all published posts
 router.get('/', async (req, res) => {
   try {
@@ -34,12 +41,13 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/posts - Create new post (DEBUG VERSION)
-router.post('/', protect, memberOrAdmin, async (req, res) => {
+// POST /api/posts - Create new post
+router.post('/', protect, memberOrAdmin, upload.single('image'), async (req, res) => {
   try {
-    console.log('=== CREATE POST (DEBUG) ===');
-    console.log('Content-Type:', req.headers['content-type']);
-    console.log('Body:', req.body);
+    console.log('=== CREATE POST ===');
+    console.log('Title:', req.body.title);
+    console.log('Body length:', req.body.body?.length);
+    console.log('File:', req.file ? req.file.originalname : 'No file');
     
     const { title, body } = req.body;
     
@@ -47,32 +55,42 @@ router.post('/', protect, memberOrAdmin, async (req, res) => {
       return res.status(400).json({ message: 'Title and body are required' });
     }
     
-    // Create post WITHOUT image for now
-    const postData = {
+    let imageFilename = '';
+    
+    // If file was uploaded, save it
+    if (req.file) {
+      imageFilename = req.file.filename;
+      console.log('Image saved as:', imageFilename);
+      
+      // If using memory storage (Render), save buffer to disk
+      if (req.file.buffer && !req.file.path) {
+        const filePath = path.join(uploadDir, req.file.filename);
+        fs.writeFileSync(filePath, req.file.buffer);
+        console.log('File saved from buffer to:', filePath);
+      }
+    }
+    
+    const post = await Post.create({
       title: title.trim(),
       body: body.trim(),
-      image: '',
+      image: imageFilename,
       author: req.user._id,
       status: 'published'
-    };
-    
-    console.log('Creating post:', postData);
-    
-    const post = await Post.create(postData);
-    console.log('Post created:', post._id);
+    });
     
     await post.populate('author', 'name profilePic');
+    console.log('Post created successfully, ID:', post._id);
     
     res.status(201).json(post);
     
   } catch (err) {
-    console.error('Error:', err);
+    console.error('Error creating post:', err);
     res.status(500).json({ message: err.message });
   }
 });
 
 // PUT /api/posts/:id - Update post
-router.put('/:id', protect, memberOrAdmin, async (req, res) => {
+router.put('/:id', protect, memberOrAdmin, upload.single('image'), async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: 'Post not found' });
@@ -85,6 +103,24 @@ router.put('/:id', protect, memberOrAdmin, async (req, res) => {
 
     if (req.body.title) post.title = req.body.title;
     if (req.body.body) post.body = req.body.body;
+    
+    if (req.file) {
+      // Delete old image if exists
+      if (post.image) {
+        const oldPath = path.join(uploadDir, post.image);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+      
+      post.image = req.file.filename;
+      
+      // Save from buffer if needed
+      if (req.file.buffer && !req.file.path) {
+        const filePath = path.join(uploadDir, req.file.filename);
+        fs.writeFileSync(filePath, req.file.buffer);
+      }
+    }
     
     await post.save();
     res.json(post);
@@ -125,6 +161,14 @@ router.delete('/:id', protect, memberOrAdmin, async (req, res) => {
       return res.status(403).json({ message: 'Admins only' });
     }
 
+    // Delete image file if exists
+    if (post.image) {
+      const imagePath = path.join(uploadDir, post.image);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+
     await post.deleteOne();
     res.json({ message: 'Post permanently deleted' });
   } catch (err) {
@@ -132,5 +176,8 @@ router.delete('/:id', protect, memberOrAdmin, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+// Serve static files from uploads directory
+router.use('/uploads', express.static(uploadDir));
 
 module.exports = router;
