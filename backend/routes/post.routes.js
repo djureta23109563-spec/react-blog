@@ -5,7 +5,8 @@ const Post = require('../models/Post');
 const { protect } = require('../middleware/auth.middleware');
 const { memberOrAdmin } = require('../middleware/role.middleware');
 const upload = require('../middleware/upload');
-const cloudinary = require('../config/cloudinary');
+const fs = require('fs');
+const path = require('path');
 const router = express.Router();
 
 // GET /api/posts - Public: all published posts
@@ -33,33 +34,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Helper function to upload to Cloudinary from buffer
-const uploadToCloudinary = (buffer, originalname) => {
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: 'blog-posts',
-        public_id: `${Date.now()}-${originalname.split('.')[0]}`,
-        transformation: [
-          { width: 1200, height: 630, crop: 'fill' }
-        ]
-      },
-      (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
-      }
-    );
-    
-    // Convert buffer to stream and pipe to Cloudinary
-    const Readable = require('stream').Readable;
-    const readableStream = new Readable();
-    readableStream.push(buffer);
-    readableStream.push(null);
-    readableStream.pipe(uploadStream);
-  });
-};
-
-// POST /api/posts - Create new post with Cloudinary image upload
+// POST /api/posts - Create new post with LOCAL image storage
 router.post('/', protect, memberOrAdmin, upload.single('image'), async (req, res) => {
   try {
     console.log('=== CREATE POST ===');
@@ -74,22 +49,21 @@ router.post('/', protect, memberOrAdmin, upload.single('image'), async (req, res
     
     let imageUrl = '';
     
-    // Upload to Cloudinary if file exists
-    if (req.file && req.file.buffer) {
-      try {
-        console.log('Uploading image to Cloudinary...');
-        console.log('File size:', req.file.buffer.length);
-        console.log('File mimetype:', req.file.mimetype);
-        
-        const result = await uploadToCloudinary(req.file.buffer, req.file.originalname);
-        imageUrl = result.secure_url;
-        console.log('Cloudinary upload successful:', imageUrl);
-      } catch (cloudinaryError) {
-        console.error('Cloudinary upload error:', cloudinaryError);
-        return res.status(500).json({ message: 'Image upload failed: ' + cloudinaryError.message });
+    // Save image filename if uploaded
+    if (req.file) {
+      imageUrl = req.file.filename;
+      console.log('Image saved:', imageUrl);
+      
+      // If using memory storage (Render), save the file to disk
+      if (req.file.buffer && !req.file.path) {
+        const uploadDir = path.join(__dirname, '..', 'uploads');
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        const filePath = path.join(uploadDir, req.file.filename);
+        fs.writeFileSync(filePath, req.file.buffer);
+        console.log('File saved from buffer to:', filePath);
       }
-    } else {
-      console.log('No image file to upload');
     }
     
     const postData = {
@@ -99,8 +73,6 @@ router.post('/', protect, memberOrAdmin, upload.single('image'), async (req, res
       author: req.user._id,
       status: 'published'
     };
-    
-    console.log('Creating post with image URL:', imageUrl || 'no image');
     
     const post = await Post.create(postData);
     console.log('Post created successfully, ID:', post._id);
@@ -115,7 +87,7 @@ router.post('/', protect, memberOrAdmin, upload.single('image'), async (req, res
   }
 });
 
-// PUT /api/posts/:id - Update post with Cloudinary image upload
+// PUT /api/posts/:id - Update post
 router.put('/:id', protect, memberOrAdmin, upload.single('image'), async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -130,16 +102,18 @@ router.put('/:id', protect, memberOrAdmin, upload.single('image'), async (req, r
     if (req.body.title) post.title = req.body.title;
     if (req.body.body) post.body = req.body.body;
     
-    // Upload new image to Cloudinary if provided
-    if (req.file && req.file.buffer) {
-      try {
-        console.log('Uploading updated image to Cloudinary...');
-        const result = await uploadToCloudinary(req.file.buffer, req.file.originalname);
-        post.image = result.secure_url;
-        console.log('Cloudinary upload successful:', post.image);
-      } catch (cloudinaryError) {
-        console.error('Cloudinary upload error:', cloudinaryError);
-        return res.status(500).json({ message: 'Image upload failed' });
+    if (req.file) {
+      post.image = req.file.filename;
+      
+      // Save file from buffer if needed
+      if (req.file.buffer && !req.file.path) {
+        const uploadDir = path.join(__dirname, '..', 'uploads');
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        const filePath = path.join(uploadDir, req.file.filename);
+        fs.writeFileSync(filePath, req.file.buffer);
+        console.log('Updated image saved to:', filePath);
       }
     }
     
@@ -180,6 +154,15 @@ router.delete('/:id', protect, memberOrAdmin, async (req, res) => {
 
     if (req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Admins only' });
+    }
+
+    // Delete the image file if it exists
+    if (post.image) {
+      const imagePath = path.join(__dirname, '..', 'uploads', post.image);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+        console.log('Deleted image file:', imagePath);
+      }
     }
 
     await post.deleteOne();
