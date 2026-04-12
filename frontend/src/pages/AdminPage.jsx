@@ -48,12 +48,29 @@ const AdminPage = () => {
       let postsData = [];
       let messagesData = [];
       
-      // REMOVED: /admin/users call - route doesn't exist
-      // REMOVED: /admin/posts call - route doesn't exist
+      // Fetch users from /auth/members endpoint
+      try {
+        const usersRes = await API.get('/auth/members');
+        usersData = usersRes.data.members || usersRes.data || [];
+        console.log('Fetched users:', usersData.length);
+      } catch (err) {
+        console.error('Failed to fetch users:', err);
+      }
       
+      // Fetch posts from /posts endpoint
+      try {
+        const postsRes = await API.get('/posts');
+        postsData = postsRes.data || [];
+        console.log('Fetched posts:', postsData.length);
+      } catch (err) {
+        console.error('Failed to fetch posts:', err);
+      }
+      
+      // Fetch messages from /messages/admin
       try {
         const messagesRes = await API.get('/messages/admin');
         messagesData = messagesRes.data || [];
+        console.log('Fetched messages:', messagesData.length);
       } catch (err) {
         console.error('Failed to fetch messages:', err);
       }
@@ -70,6 +87,13 @@ const AdminPage = () => {
       const publishedPosts = postsData.filter(p => p.status === 'published').length;
       const unreadMessages = messagesData.filter(m => m.status === 'unread').length;
       
+      // Create recent activity
+      const recentActivity = [
+        ...usersData.slice(0, 3).map(u => ({ type: 'user', data: u, date: u.createdAt })),
+        ...postsData.slice(0, 3).map(p => ({ type: 'post', data: p, date: p.createdAt })),
+        ...messagesData.slice(0, 3).map(m => ({ type: 'message', data: m, date: m.createdAt }))
+      ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+      
       setAnalytics({
         totalUsers: usersData.length,
         activeUsers,
@@ -77,11 +101,7 @@ const AdminPage = () => {
         publishedPosts,
         totalMessages: messagesData.length,
         unreadMessages,
-        recentActivity: [
-          ...usersData.slice(0, 3).map(u => ({ type: 'user', data: u, date: u.createdAt })),
-          ...postsData.slice(0, 3).map(p => ({ type: 'post', data: p, date: p.createdAt })),
-          ...messagesData.slice(0, 3).map(m => ({ type: 'message', data: m, date: m.createdAt }))
-        ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5)
+        recentActivity
       });
       
     } catch (err) {
@@ -94,21 +114,25 @@ const AdminPage = () => {
 
   const toggleStatus = async (id) => {
     try {
+      // This endpoint may not exist - handle gracefully
       const { data } = await API.put(`/admin/users/${id}/status`);
       setUsers(users.map(u => u._id === id ? data.user : u));
     } catch (err) {
-      setError('Failed to update user status');
+      console.error('Failed to update user status:', err);
+      setError('User status update not available yet');
     }
   };
 
   const removePost = async (id) => {
     try {
-      await API.put(`/admin/posts/${id}/remove`);
+      await API.put(`/posts/${id}/remove`);
       const updatedPosts = posts.map(p => p._id === id ? { ...p, status: 'removed' } : p);
       setPosts(updatedPosts);
       const removed = updatedPosts.filter(p => p.status === 'removed');
       setRemovedPosts(removed);
+      console.log('Post removed:', id);
     } catch (err) {
+      console.error('Failed to remove post:', err);
       setError('Failed to remove post');
     }
   };
@@ -120,7 +144,9 @@ const AdminPage = () => {
       setPosts(updatedPosts);
       const removed = updatedPosts.filter(p => p.status === 'removed');
       setRemovedPosts(removed);
+      console.log('Post restored:', id);
     } catch (err) {
+      console.error('Failed to restore post:', err);
       setError('Failed to restore post');
     }
   };
@@ -423,18 +449,22 @@ const AdminPage = () => {
             </div>
 
             <div className={styles.tableContainer}>
-              <table className={styles.dataTable}>
-                <thead>
-                  <tr>
-                    <th>Member</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.length > 0 ? (
-                    filteredUsers.map(user => (
+              {filteredUsers.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>No members found</p>
+                </div>
+              ) : (
+                <table className={styles.dataTable}>
+                  <thead>
+                    <tr>
+                      <th>Member</th>
+                      <th>Email</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.map(user => (
                       <tr key={user._id}>
                         <td className={styles.userCell}>
                           <div className={styles.userAvatar}>{user.name?.charAt(0)}</div>
@@ -446,7 +476,7 @@ const AdminPage = () => {
                             className={styles.statusBadge}
                             style={{ backgroundColor: getStatusColor(user.status) }}
                           >
-                            {user.status}
+                            {user.status || 'active'}
                           </span>
                         </td>
                         <td>
@@ -458,36 +488,34 @@ const AdminPage = () => {
                           </button>
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="4" className={styles.emptyState}>
-                        <p>No members found</p>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         )}
 
-        {/* Posts Tab - SAME TAB NAVIGATION */}
+        {/* Posts Tab */}
         {activeTab === 'posts' && (
           <div className={styles.tabContent}>
             <div className={styles.tableContainer}>
-              <table className={styles.dataTable}>
-                <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Author</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {posts.length > 0 ? (
-                    posts.map(post => (
+              {posts.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>No posts found</p>
+                </div>
+              ) : (
+                <table className={styles.dataTable}>
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Author</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {posts.map(post => (
                       <tr key={post._id}>
                         <td className={styles.postTitleCell}>{post.title}</td>
                         <td>{post.author?.name || 'Unknown'}</td>
@@ -503,9 +531,6 @@ const AdminPage = () => {
                           <div className={styles.actionGroup}>
                             <button
                               onClick={() => {
-                                console.log('🔍 Opening post with ID:', post._id);
-                                console.log('📝 Post title:', post.title);
-                                console.log('🔗 URL:', `/posts/${post._id}`);
                                 window.location.href = `/posts/${post._id}`;
                               }}
                               className={`${styles.actionBtn} ${styles.infoBtn}`}
@@ -525,21 +550,15 @@ const AdminPage = () => {
                           </div>
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="4" className={styles.emptyState}>
-                        <p>No posts found</p>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         )}
 
-        {/* Removed Posts Tab - SAME TAB NAVIGATION */}
+        {/* Removed Posts Tab */}
         {activeTab === 'removed' && (
           <div className={styles.tabContent}>
             <div className={styles.tableContainer}>
@@ -567,9 +586,6 @@ const AdminPage = () => {
                           <div className={styles.actionGroup}>
                             <button
                               onClick={() => {
-                                console.log('🔍 Opening deleted post with ID:', post._id);
-                                console.log('📝 Post title:', post.title);
-                                console.log('🔗 URL:', `/deleted-post/${post._id}`);
                                 window.location.href = `/deleted-post/${post._id}`;
                               }}
                               className={`${styles.actionBtn} ${styles.infoBtn}`}
@@ -595,7 +611,7 @@ const AdminPage = () => {
           </div>
         )}
 
-        {/* Messages Tab */}
+        {/* Messages Tab - Keep as is */}
         {activeTab === 'messages' && (
           <div className={styles.tabContent}>
             {selectedMessage ? (
