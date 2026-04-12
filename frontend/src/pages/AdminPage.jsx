@@ -48,19 +48,8 @@ const AdminPage = () => {
       let postsData = [];
       let messagesData = [];
       
-      try {
-        const usersRes = await API.get('/admin/users');
-        usersData = usersRes.data || [];
-      } catch (err) {
-        console.error('Failed to fetch users:', err);
-      }
-      
-      try {
-        const postsRes = await API.get('/admin/posts');
-        postsData = postsRes.data || [];
-      } catch (err) {
-        console.error('Failed to fetch posts:', err);
-      }
+      // REMOVED: /admin/users call - route doesn't exist
+      // REMOVED: /admin/posts call - route doesn't exist
       
       try {
         const messagesRes = await API.get('/messages/admin');
@@ -441,7 +430,7 @@ const AdminPage = () => {
                     <th>Email</th>
                     <th>Status</th>
                     <th>Actions</th>
-                   </tr>
+                  </tr>
                 </thead>
                 <tbody>
                   {filteredUsers.length > 0 ? (
@@ -517,7 +506,6 @@ const AdminPage = () => {
                                 console.log('🔍 Opening post with ID:', post._id);
                                 console.log('📝 Post title:', post.title);
                                 console.log('🔗 URL:', `/posts/${post._id}`);
-                                // Open in same tab
                                 window.location.href = `/posts/${post._id}`;
                               }}
                               className={`${styles.actionBtn} ${styles.infoBtn}`}
@@ -582,7 +570,6 @@ const AdminPage = () => {
                                 console.log('🔍 Opening deleted post with ID:', post._id);
                                 console.log('📝 Post title:', post.title);
                                 console.log('🔗 URL:', `/deleted-post/${post._id}`);
-                                // Open in same tab
                                 window.location.href = `/deleted-post/${post._id}`;
                               }}
                               className={`${styles.actionBtn} ${styles.infoBtn}`}
