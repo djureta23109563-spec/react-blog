@@ -10,9 +10,17 @@ function Navbar() {
   const [user, setUser] = useState(null);
   const [avatarError, setAvatarError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState('light');
   
   // For Vite, use import.meta.env for backend URL
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
+  // Load theme from localStorage on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    setTheme(savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }, []);
 
   // Load user data from localStorage and API on mount
   useEffect(() => {
@@ -53,7 +61,6 @@ function Navbar() {
         setUser(userData);
         setAvatarError(false);
       } else {
-        // Token expired or invalid
         localStorage.removeItem('token');
         setUser(null);
       }
@@ -69,6 +76,13 @@ function Navbar() {
     localStorage.removeItem('token');
     setUser(null);
     navigate('/login');
+  };
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
   };
 
   // Get profile image URL
@@ -203,15 +217,15 @@ function Navbar() {
                   </Link>
                 </li>
                 
-                {/* Admin Only Link */}
+                {/* Admin Dashboard Link */}
                 {user.role === 'admin' && (
                   <li>
                     <Link 
                       to="/admin"
                       className={`${styles.navLink} ${location.pathname === '/admin' ? styles.active : ''}`}
                     >
-                      <span className={styles.navIcon}>👑</span>
-                      <span>Admin</span>
+                      <span className={styles.navIcon}>⚙️</span>
+                      <span>Admin Dashboard</span>
                     </Link>
                   </li>
                 )}
@@ -234,6 +248,7 @@ function Navbar() {
                     <span className={styles.dropdownArrow}>▼</span>
                   </button>
                   
+                  {/* DROPDOWN MENU - Profile and Logout */}
                   <div className={styles.dropdown}>
                     <Link to="/profile" className={styles.dropdownItem}>
                       <span className={styles.dropdownIcon}>👤</span>
@@ -247,6 +262,21 @@ function Navbar() {
                 </li>
               </>
             )}
+
+            {/* Dark Mode Toggle */}
+            <li>
+              <button 
+                onClick={toggleTheme} 
+                className={styles.themeToggle}
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? (
+                  <span className={styles.themeIcon}>☀️</span>
+                ) : (
+                  <span className={styles.themeIcon}>🌙</span>
+                )}
+              </button>
+            </li>
           </ul>
         </nav>
       </div>
