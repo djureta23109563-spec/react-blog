@@ -13,10 +13,11 @@ const HomePage = () => {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [imageErrors, setImageErrors] = useState({});
     const { user } = useAuth();
 
-    // TEMPORARY: Hardcode the backend URL for production
-    const BACKEND_URL = 'https://react-blog-7yna.onrender.com';
+    // Backend URL from environment or hardcoded
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://react-blog-7yna.onrender.com';
 
     useEffect(() => {
         fetchPosts();
@@ -26,6 +27,7 @@ const HomePage = () => {
         try {
             setLoading(true);
             const res = await API.get('/posts');
+            console.log('Fetched posts:', res.data);
             setPosts(res.data);
             setError('');
         } catch (err) {
@@ -54,6 +56,22 @@ const HomePage = () => {
             day: 'numeric',
             year: 'numeric'
         });
+    };
+
+    // Helper function to get image URL
+    const getImageUrl = (imagePath) => {
+        if (!imagePath) return null;
+        // If it's already a full URL (Cloudinary)
+        if (imagePath.startsWith('http')) return imagePath;
+        // If it's a local file path
+        if (imagePath.startsWith('/uploads')) return `${BACKEND_URL}${imagePath}`;
+        // Default: assume it's a filename in uploads folder
+        return `${BACKEND_URL}/uploads/${imagePath}`;
+    };
+
+    const handleImageError = (postId) => {
+        setImageErrors(prev => ({ ...prev, [postId]: true }));
+        console.log(`Image failed to load for post: ${postId}`);
     };
 
     if (loading) {
@@ -165,11 +183,13 @@ const HomePage = () => {
                             {posts.map((post) => (
                                 <article key={post._id} className={styles.postCard}>
                                     <div className={styles.postImageWrapper}>
-                                        {post.image ? (
+                                        {post.image && !imageErrors[post._id] ? (
                                             <img
-                                                src={`${BACKEND_URL}/uploads/${post.image}`}
+                                                src={getImageUrl(post.image)}
                                                 alt={post.title}
                                                 className={styles.postImage}
+                                                onError={() => handleImageError(post._id)}
+                                                loading="lazy"
                                             />
                                         ) : (
                                             <div className={styles.postImagePlaceholder}>
@@ -188,8 +208,8 @@ const HomePage = () => {
                                             <Link to={`/posts/${post._id}`}>{post.title}</Link>
                                         </h3>
                                         <p className={styles.postExcerpt}>
-                                            {post.body.substring(0, 100)}
-                                            {post.body.length > 100 && '...'}
+                                            {post.body?.substring(0, 100) || ''}
+                                            {post.body?.length > 100 && '...'}
                                         </p>
                                         <div className={styles.postFooter}>
                                             <div className={styles.postAuthor}>
@@ -198,9 +218,10 @@ const HomePage = () => {
                                                         <img 
                                                             src={`${BACKEND_URL}/uploads/${post.author.profilePic}`}
                                                             alt={post.author.name}
+                                                            onError={(e) => { e.target.style.display = 'none'; }}
                                                         />
                                                     ) : (
-                                                        getAuthorInitial(post.author?.name)
+                                                        <span>{getAuthorInitial(post.author?.name)}</span>
                                                     )}
                                                 </div>
                                                 <span className={styles.authorName}>
@@ -236,7 +257,7 @@ const HomePage = () => {
                             </p>
                         </div>
                         <div className={styles.signupFormWrapper}>
-                            <form className={styles.signupForm}>
+                            <form className={styles.signupForm} onSubmit={(e) => e.preventDefault()}>
                                 <input 
                                     type="email" 
                                     placeholder="Enter your email" 
