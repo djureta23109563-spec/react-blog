@@ -1,27 +1,72 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
 import styles from '../styles/ProfilePage.module.css';
 
 const ProfilePage = () => {
-    const { user, setUser, token } = useAuth();
-
-    const [name, setName] = useState(user?.name || '');
-    const [bio, setBio] = useState(user?.bio || '');
+    const navigate = useNavigate();
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [name, setName] = useState('');
+    const [bio, setBio] = useState('');
     const [pic, setPic] = useState(null);
     const [picPreview, setPicPreview] = useState(null);
     const [curPw, setCurPw] = useState('');
     const [newPw, setNewPw] = useState('');
     const [msg, setMsg] = useState({ type: '', text: '' });
-    const [loading, setLoading] = useState(false);
+    const [updating, setUpdating] = useState(false);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
+    // Fetch user data on mount
+    useEffect(() => {
+        fetchUserData();
+    }, []);
+
+    const fetchUserData = async () => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('token');
+            if (!token) {
+                navigate('/login');
+                return;
+            }
+            
+            const response = await API.get('/auth/me', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            
+            setUser(response.data);
+            setName(response.data.name || '');
+            setBio(response.data.bio || '');
+        } catch (err) {
+            console.error('Error fetching user:', err);
+            if (err.response?.status === 401) {
+                localStorage.removeItem('token');
+                navigate('/login');
+            }
+            setMsg({ type: 'error', text: 'Failed to load profile' });
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Get the best available profile image URL
     const getProfileImageUrl = () => {
-        if (user?.avatar) return user.avatar;
-        if (user?.profilePic) return `${BACKEND_URL}/uploads/${user.profilePic}`;
+        if (!user) return null;
+        if (user?.avatar && user.avatar.startsWith('http')) {
+            return user.avatar;
+        }
+        if (user?.avatar) {
+            return `${BACKEND_URL}${user.avatar}`;
+        }
+        if (user?.profilePic) {
+            if (user.profilePic.startsWith('http')) {
+                return user.profilePic;
+            }
+            return `${BACKEND_URL}/uploads/${user.profilePic}`;
+        }
         return null;
     };
 
@@ -37,18 +82,16 @@ const ProfilePage = () => {
         }
     };
 
-    // NEW: Handle Cloudinary avatar upload
+    // Handle Cloudinary avatar upload
     const handleAvatarUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Validate file type
         if (!file.type.startsWith('image/')) {
             setMsg({ type: 'error', text: 'Please select an image file' });
             return;
         }
 
-        // Validate file size (5MB)
         if (file.size > 5 * 1024 * 1024) {
             setMsg({ type: 'error', text: 'File size must be less than 5MB' });
             return;
@@ -61,6 +104,7 @@ const ProfilePage = () => {
         setMsg({ type: '', text: '' });
 
         try {
+            const token = localStorage.getItem('token');
             const response = await API.post('/uploads/avatar', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -69,12 +113,11 @@ const ProfilePage = () => {
             });
 
             if (response.data.success) {
-                // Update user context with new avatar
                 setUser(prev => ({ ...prev, avatar: response.data.avatarUrl }));
                 setMsg({ type: 'success', text: 'Avatar uploaded successfully! ✨' });
-                
-                // Clear any file input
                 e.target.value = '';
+                // Refresh user data
+                await fetchUserData();
             }
         } catch (err) {
             console.error('Avatar upload error:', err);
@@ -87,51 +130,57 @@ const ProfilePage = () => {
         }
     };
 
-    // NEW: Handle avatar removal
+    // Handle avatar removal
     const handleRemoveAvatar = async () => {
         if (!confirm('Are you sure you want to remove your avatar?')) return;
 
-        setLoading(true);
+        setUpdating(true);
         try {
+            const token = localStorage.getItem('token');
             await API.delete('/uploads/avatar', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
             setUser(prev => ({ ...prev, avatar: '' }));
             setMsg({ type: 'success', text: 'Avatar removed successfully' });
+            await fetchUserData();
         } catch (err) {
             console.error('Avatar removal error:', err);
             setMsg({ type: 'error', text: 'Failed to remove avatar' });
         } finally {
-            setLoading(false);
+            setUpdating(false);
         }
     };
 
     const handleProfile = async (e) => {
         e.preventDefault();
         setMsg({ type: '', text: '' });
-        setLoading(true);
+        setUpdating(true);
         
         const fd = new FormData();
         fd.append('name', name);
         fd.append('bio', bio);
         if (pic) {
             fd.append('profilePic', pic);
-            console.log('Uploading image:', pic.name);
         }
 
         try {
-            console.log('Sending profile update...');
+            const token = localStorage.getItem('token');
             const { data } = await API.put('/auth/profile', fd, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${token}`
                 },
             });
-            console.log('Profile updated:', data);
-            setUser(data);
+            
+            setUser(prev => ({ ...prev, ...data.user, name: name, bio: bio }));
             setMsg({ type: 'success', text: 'Profile updated successfully! ✨' });
             setPicPreview(null);
             setPic(null);
+            
+            // Refresh user data
+            await fetchUserData();
+            
         } catch (err) {
             console.error('Profile update error:', err);
             setMsg({ 
@@ -139,19 +188,22 @@ const ProfilePage = () => {
                 text: err.response?.data?.message || 'Error updating profile' 
             });
         } finally {
-            setLoading(false);
+            setUpdating(false);
         }
     };
 
     const handlePassword = async (e) => {
         e.preventDefault();
         setMsg({ type: '', text: '' });
-        setLoading(true);
+        setUpdating(true);
         
         try {
+            const token = localStorage.getItem('token');
             await API.put('/auth/change-password', { 
                 currentPassword: curPw, 
                 newPassword: newPw 
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
             });
             setMsg({ type: 'success', text: 'Password changed successfully! 🔐' });
             setCurPw('');
@@ -163,13 +215,11 @@ const ProfilePage = () => {
                 text: err.response?.data?.message || 'Error changing password' 
             });
         } finally {
-            setLoading(false);
+            setUpdating(false);
         }
     };
 
-    const profileImageUrl = getProfileImageUrl();
-
-    if (!user) {
+    if (loading) {
         return (
             <div className={styles.loadingContainer}>
                 <div className={styles.loadingSpinner}></div>
@@ -177,6 +227,19 @@ const ProfilePage = () => {
             </div>
         );
     }
+
+    if (!user) {
+        return (
+            <div className={styles.loadingContainer}>
+                <p>Please log in to view your profile.</p>
+                <button onClick={() => navigate('/login')} className={styles.button}>
+                    Go to Login
+                </button>
+            </div>
+        );
+    }
+
+    const profileImageUrl = getProfileImageUrl();
 
     return (
         <div className={styles.profilePage}>
@@ -201,7 +264,19 @@ const ProfilePage = () => {
                                 {picPreview ? (
                                     <img src={picPreview} alt="Preview" className={styles.avatar} />
                                 ) : profileImageUrl ? (
-                                    <img src={profileImageUrl} alt={user.name} className={styles.avatar} />
+                                    <img 
+                                        src={profileImageUrl} 
+                                        alt={user.name} 
+                                        className={styles.avatar}
+                                        onError={(e) => {
+                                            console.error('Image failed to load:', profileImageUrl);
+                                            e.target.style.display = 'none';
+                                            const parent = e.target.parentElement;
+                                            if (parent) {
+                                                parent.innerHTML = `<div class="${styles.defaultAvatar}">${user.name?.charAt(0).toUpperCase()}</div>`;
+                                            }
+                                        }}
+                                    />
                                 ) : (
                                     <div className={styles.defaultAvatar}>
                                         {user.name?.charAt(0).toUpperCase()}
@@ -209,7 +284,7 @@ const ProfilePage = () => {
                                 )}
                             </div>
                             
-                            {/* NEW: Cloudinary Avatar Upload Section */}
+                            {/* Cloudinary Avatar Upload Section */}
                             <div className={styles.cloudinaryUpload}>
                                 <label htmlFor="cloudinaryAvatarInput" className={styles.avatarButton}>
                                     {uploadingAvatar ? '⏳ Uploading...' : '📷 Upload New Avatar'}
@@ -227,7 +302,7 @@ const ProfilePage = () => {
                                     <button 
                                         onClick={handleRemoveAvatar}
                                         className={styles.removeAvatarButton}
-                                        disabled={loading}
+                                        disabled={updating}
                                     >
                                         🗑️ Remove Avatar
                                     </button>
@@ -262,7 +337,7 @@ const ProfilePage = () => {
                             </div>
                             {user.avatar && (
                                 <div className={styles.avatarBadge}>
-                                    ✅ Using Cloudinary avatar (works on Vercel)
+                                    ✅ Avatar uploaded successfully
                                 </div>
                             )}
                             {user.bio && (
@@ -337,9 +412,9 @@ const ProfilePage = () => {
                                 <button 
                                     type="submit" 
                                     className={styles.button}
-                                    disabled={loading}
+                                    disabled={updating}
                                 >
-                                    {loading ? 'Saving...' : 'Save Profile'}
+                                    {updating ? 'Saving...' : 'Save Profile'}
                                 </button>
                             </form>
                         </div>
@@ -382,9 +457,9 @@ const ProfilePage = () => {
                                 <button 
                                     type="submit" 
                                     className={styles.button}
-                                    disabled={loading}
+                                    disabled={updating}
                                 >
-                                    {loading ? 'Updating...' : 'Change Password'}
+                                    {updating ? 'Updating...' : 'Change Password'}
                                 </button>
                             </form>
                         </div>
