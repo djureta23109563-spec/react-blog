@@ -5,6 +5,8 @@ const Post = require('../models/Post');
 const { protect } = require('../middleware/auth.middleware');
 const { memberOrAdmin } = require('../middleware/role.middleware');
 const upload = require('../middleware/upload');
+const fs = require('fs');
+const path = require('path');
 const router = express.Router();
 
 // GET /api/posts - Public: all published posts
@@ -30,7 +32,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/posts - Create new post (SIMPLIFIED - no Cloudinary)
+// POST /api/posts - Create new post
 router.post('/', protect, memberOrAdmin, upload.single('image'), async (req, res) => {
   try {
     console.log('=== CREATE POST ===');
@@ -43,27 +45,62 @@ router.post('/', protect, memberOrAdmin, upload.single('image'), async (req, res
       return res.status(400).json({ message: 'Title and body are required' });
     }
     
-    // SIMPLE: Just save the filename (not Cloudinary URL)
     let imageUrl = '';
     if (req.file) {
-      imageUrl = req.file.filename; // Just store the filename
-      console.log('Image filename:', imageUrl);
+      // Log full file details for debugging
+      console.log('File details:', {
+        filename: req.file.filename,
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        hasBuffer: !!req.file.buffer,
+        hasPath: !!req.file.path
+      });
+      
+      imageUrl = req.file.filename;
+      console.log('Image filename saved:', imageUrl);
+      
+      // Check if file was actually saved to disk
+      if (req.file.path && fs.existsSync(req.file.path)) {
+        console.log('File exists at:', req.file.path);
+        console.log('File size:', fs.statSync(req.file.path).size);
+      } else if (req.file.buffer) {
+        console.log('File is in memory buffer, size:', req.file.buffer.length);
+        
+        // For Render (memory storage), we need to save the file to a temporary location
+        const uploadDir = path.join(__dirname, '..', 'uploads');
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        
+        const filePath = path.join(uploadDir, req.file.filename);
+        fs.writeFileSync(filePath, req.file.buffer);
+        console.log('File saved from buffer to:', filePath);
+      }
+    } else {
+      console.log('No image file uploaded');
     }
     
-    const post = await Post.create({
+    const postData = {
       title: title.trim(),
       body: body.trim(),
       image: imageUrl,
       author: req.user._id,
       status: 'published'
-    });
+    };
+    
+    console.log('Post data to save:', { ...postData, image: postData.image || '(no image)' });
+    
+    const post = await Post.create(postData);
+    console.log('Post created with ID:', post._id);
+    console.log('Saved image value in DB:', post.image);
     
     await post.populate('author', 'name profilePic');
-    console.log('Post created:', post._id);
+    
     res.status(201).json(post);
     
   } catch (err) {
-    console.error('Error:', err);
+    console.error('Error creating post:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -82,11 +119,27 @@ router.put('/:id', protect, memberOrAdmin, upload.single('image'), async (req, r
 
     if (req.body.title) post.title = req.body.title;
     if (req.body.body) post.body = req.body.body;
-    if (req.file) post.image = req.file.filename;
+    
+    if (req.file) {
+      console.log('Updating image:', req.file.filename);
+      post.image = req.file.filename;
+      
+      // Save file from buffer if needed
+      if (req.file.buffer && !req.file.path) {
+        const uploadDir = path.join(__dirname, '..', 'uploads');
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        const filePath = path.join(uploadDir, req.file.filename);
+        fs.writeFileSync(filePath, req.file.buffer);
+        console.log('Updated image saved from buffer to:', filePath);
+      }
+    }
     
     await post.save();
     res.json(post);
   } catch (err) {
+    console.error('Error updating post:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -121,9 +174,19 @@ router.delete('/:id', protect, memberOrAdmin, async (req, res) => {
       return res.status(403).json({ message: 'Admins only' });
     }
 
+    // Optionally delete the image file
+    if (post.image) {
+      const imagePath = path.join(__dirname, '..', 'uploads', post.image);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+        console.log('Deleted image file:', imagePath);
+      }
+    }
+
     await post.deleteOne();
     res.json({ message: 'Post permanently deleted' });
   } catch (err) {
+    console.error('Error deleting post:', err);
     res.status(500).json({ message: err.message });
   }
 });
