@@ -37,6 +37,7 @@ const ProfilePage = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
+            console.log('Fetched user data:', response.data);
             setUser(response.data);
             setName(response.data.name || '');
             setBio(response.data.bio || '');
@@ -55,18 +56,26 @@ const ProfilePage = () => {
     // Get the best available profile image URL
     const getProfileImageUrl = () => {
         if (!user) return null;
-        if (user?.avatar && user.avatar.startsWith('http')) {
-            return user.avatar;
-        }
-        if (user?.avatar) {
-            return `${BACKEND_URL}${user.avatar}`;
-        }
-        if (user?.profilePic) {
+        
+        // Preview of newly uploaded image
+        if (picPreview) return picPreview;
+        
+        // Check profilePic field (local storage)
+        if (user.profilePic) {
             if (user.profilePic.startsWith('http')) {
                 return user.profilePic;
             }
             return `${BACKEND_URL}/uploads/${user.profilePic}`;
         }
+        
+        // Check avatar field as fallback
+        if (user.avatar) {
+            if (user.avatar.startsWith('http')) {
+                return user.avatar;
+            }
+            return `${BACKEND_URL}/uploads/${user.avatar}`;
+        }
+        
         return null;
     };
 
@@ -82,7 +91,7 @@ const ProfilePage = () => {
         }
     };
 
-    // Handle Cloudinary avatar upload
+    // Handle local avatar upload (no Cloudinary)
     const handleAvatarUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -112,9 +121,16 @@ const ProfilePage = () => {
                 }
             });
 
+            console.log('Avatar upload response:', response.data);
+
             if (response.data.success) {
-                setUser(prev => ({ ...prev, avatar: response.data.avatarUrl }));
-                setMsg({ type: 'success', text: 'Avatar uploaded successfully! ✨' });
+                // Update user with new profile picture
+                setUser(prev => ({ 
+                    ...prev, 
+                    profilePic: response.data.user?.profilePic || response.data.avatarUrl,
+                    avatar: response.data.user?.avatar || response.data.avatarUrl
+                }));
+                setMsg({ type: 'success', text: 'Profile picture uploaded successfully! ✨' });
                 e.target.value = '';
                 // Refresh user data
                 await fetchUserData();
@@ -123,7 +139,7 @@ const ProfilePage = () => {
             console.error('Avatar upload error:', err);
             setMsg({ 
                 type: 'error', 
-                text: err.response?.data?.error || 'Error uploading avatar' 
+                text: err.response?.data?.error || 'Error uploading profile picture' 
             });
         } finally {
             setUploadingAvatar(false);
@@ -132,7 +148,7 @@ const ProfilePage = () => {
 
     // Handle avatar removal
     const handleRemoveAvatar = async () => {
-        if (!confirm('Are you sure you want to remove your avatar?')) return;
+        if (!confirm('Are you sure you want to remove your profile picture?')) return;
 
         setUpdating(true);
         try {
@@ -141,12 +157,12 @@ const ProfilePage = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
-            setUser(prev => ({ ...prev, avatar: '' }));
-            setMsg({ type: 'success', text: 'Avatar removed successfully' });
+            setUser(prev => ({ ...prev, profilePic: '', avatar: '' }));
+            setMsg({ type: 'success', text: 'Profile picture removed successfully' });
             await fetchUserData();
         } catch (err) {
             console.error('Avatar removal error:', err);
-            setMsg({ type: 'error', text: 'Failed to remove avatar' });
+            setMsg({ type: 'error', text: 'Failed to remove profile picture' });
         } finally {
             setUpdating(false);
         }
@@ -172,6 +188,8 @@ const ProfilePage = () => {
                     Authorization: `Bearer ${token}`
                 },
             });
+            
+            console.log('Profile update response:', data);
             
             setUser(prev => ({ ...prev, ...data.user, name: name, bio: bio }));
             setMsg({ type: 'success', text: 'Profile updated successfully! ✨' });
@@ -240,6 +258,7 @@ const ProfilePage = () => {
     }
 
     const profileImageUrl = getProfileImageUrl();
+    console.log('Profile image URL:', profileImageUrl);
 
     return (
         <div className={styles.profilePage}>
@@ -261,9 +280,7 @@ const ProfilePage = () => {
                     <div className={styles.profileCard}>
                         <div className={styles.avatarWrapper}>
                             <div className={styles.avatarContainer}>
-                                {picPreview ? (
-                                    <img src={picPreview} alt="Preview" className={styles.avatar} />
-                                ) : profileImageUrl ? (
+                                {profileImageUrl ? (
                                     <img 
                                         src={profileImageUrl} 
                                         alt={user.name} 
@@ -272,25 +289,26 @@ const ProfilePage = () => {
                                             console.error('Image failed to load:', profileImageUrl);
                                             e.target.style.display = 'none';
                                             const parent = e.target.parentElement;
-                                            if (parent) {
-                                                parent.innerHTML = `<div class="${styles.defaultAvatar}">${user.name?.charAt(0).toUpperCase()}</div>`;
+                                            if (parent && parent.querySelector('.defaultAvatarFallback')) {
+                                                parent.querySelector('.defaultAvatarFallback').style.display = 'flex';
                                             }
                                         }}
                                     />
-                                ) : (
-                                    <div className={styles.defaultAvatar}>
+                                ) : null}
+                                {!profileImageUrl && (
+                                    <div className={`${styles.defaultAvatar} defaultAvatarFallback`}>
                                         {user.name?.charAt(0).toUpperCase()}
                                     </div>
                                 )}
                             </div>
                             
-                            {/* Cloudinary Avatar Upload Section */}
+                            {/* Local Avatar Upload Section */}
                             <div className={styles.cloudinaryUpload}>
-                                <label htmlFor="cloudinaryAvatarInput" className={styles.avatarButton}>
-                                    {uploadingAvatar ? '⏳ Uploading...' : '📷 Upload New Avatar'}
+                                <label htmlFor="avatarUploadInput" className={styles.avatarButton}>
+                                    {uploadingAvatar ? '⏳ Uploading...' : '📷 Upload Profile Picture'}
                                 </label>
                                 <input
-                                    id="cloudinaryAvatarInput"
+                                    id="avatarUploadInput"
                                     type="file"
                                     accept="image/*"
                                     onChange={handleAvatarUpload}
@@ -298,13 +316,13 @@ const ProfilePage = () => {
                                     style={{ display: 'none' }}
                                 />
                                 
-                                {user.avatar && (
+                                {(user.profilePic || user.avatar) && (
                                     <button 
                                         onClick={handleRemoveAvatar}
                                         className={styles.removeAvatarButton}
                                         disabled={updating}
                                     >
-                                        🗑️ Remove Avatar
+                                        🗑️ Remove Picture
                                     </button>
                                 )}
                             </div>
@@ -313,9 +331,9 @@ const ProfilePage = () => {
                                 <span>or</span>
                             </div>
                             
-                            <label htmlFor="profilePicInput" className={styles.avatarOverlay} title="Change local photo">
-                                <span>📁</span>
-                                <span className={styles.overlayText}>Upload Local Photo</span>
+                            <label htmlFor="profilePicInput" className={styles.avatarOverlay} title="Update profile info">
+                                <span>✏️</span>
+                                <span className={styles.overlayText}>Edit Profile Info</span>
                             </label>
                             <input
                                 id="profilePicInput"
@@ -335,9 +353,9 @@ const ProfilePage = () => {
                             <div className={styles.roleBadge}>
                                 {user.role === 'admin' ? '👑 Administrator' : '👤 Member'}
                             </div>
-                            {user.avatar && (
+                            {(user.profilePic || user.avatar) && (
                                 <div className={styles.avatarBadge}>
-                                    ✅ Avatar uploaded successfully
+                                    ✅ Profile picture set
                                 </div>
                             )}
                             {user.bio && (
@@ -383,7 +401,7 @@ const ProfilePage = () => {
                                 </div>
 
                                 <div className={styles.formGroup}>
-                                    <label className={styles.label}>Local Profile Picture (Fallback)</label>
+                                    <label className={styles.label}>Update Profile Picture (Optional)</label>
                                     <div className={styles.fileInputWrapper}>
                                         <input
                                             type="file"
