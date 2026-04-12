@@ -134,6 +134,8 @@ const ProfilePage = () => {
                 e.target.value = '';
                 // Refresh user data
                 await fetchUserData();
+                // Dispatch event to notify Navbar to refresh
+                window.dispatchEvent(new Event('userDataUpdated'));
             }
         } catch (err) {
             console.error('Avatar upload error:', err);
@@ -160,6 +162,8 @@ const ProfilePage = () => {
             setUser(prev => ({ ...prev, profilePic: '', avatar: '' }));
             setMsg({ type: 'success', text: 'Profile picture removed successfully' });
             await fetchUserData();
+            // Dispatch event to notify Navbar to refresh
+            window.dispatchEvent(new Event('userDataUpdated'));
         } catch (err) {
             console.error('Avatar removal error:', err);
             setMsg({ type: 'error', text: 'Failed to remove profile picture' });
@@ -198,6 +202,8 @@ const ProfilePage = () => {
             
             // Refresh user data
             await fetchUserData();
+            // Dispatch event to notify Navbar to refresh
+            window.dispatchEvent(new Event('userDataUpdated'));
             
         } catch (err) {
             console.error('Profile update error:', err);

@@ -1,28 +1,123 @@
 // frontend/src/components/Navbar.jsx
 
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
+import { useState, useEffect } from 'react';
 import styles from '../styles/Navbar.module.css';
 
 function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
-
+  const [user, setUser] = useState(null);
+  const [avatarError, setAvatarError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
   // For Vite, use import.meta.env for backend URL
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
+  // Load user data from localStorage and API on mount
+  useEffect(() => {
+    loadUserData();
+    
+    // Listen for profile updates (from ProfilePage)
+    const handleUserUpdate = () => {
+      loadUserData();
+    };
+    
+    window.addEventListener('userDataUpdated', handleUserUpdate);
+    
+    return () => {
+      window.removeEventListener('userDataUpdated', handleUserUpdate);
+    };
+  }, []);
+
+  const loadUserData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+      
+      // Fetch fresh user data from API
+      const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+        setAvatarError(false);
+      } else {
+        // Token expired or invalid
+        localStorage.removeItem('token');
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLogout = () => {
-    logout();
+    localStorage.removeItem('token');
+    setUser(null);
     navigate('/login');
   };
+
+  // Get profile image URL
+  const getProfileImageUrl = () => {
+    if (avatarError) return null;
+    
+    if (user?.profilePic) {
+      if (user.profilePic.startsWith('http')) {
+        return user.profilePic;
+      }
+      return `${BACKEND_URL}/uploads/${user.profilePic}`;
+    }
+    if (user?.avatar) {
+      if (user.avatar.startsWith('http')) {
+        return user.avatar;
+      }
+      return `${BACKEND_URL}/uploads/${user.avatar}`;
+    }
+    return null;
+  };
+
+  const profileImageUrl = getProfileImageUrl();
+
+  if (loading) {
+    return (
+      <header className={styles.header}>
+        <div className={styles.container}>
+          <Link to="/home" className={styles.logo}>
+            <div className={styles.logoMark}>
+              <svg className={styles.logoSvg} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="2" fill="none"/>
+                <path d="M12 16 L20 12 L28 16 L20 28 Z" stroke="currentColor" strokeWidth="2" fill="none"/>
+                <circle cx="20" cy="20" r="3" fill="currentColor"/>
+              </svg>
+            </div>
+            <div className={styles.logoText}>
+              <span className={styles.logoName}>DanceFolio</span>
+              <span className={styles.logoTagline}>Movement & Expression</span>
+            </div>
+          </Link>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        {/* Custom Logo - No text, just icon + brand name styled */}
+        {/* Custom Logo */}
         <Link to="/home" className={styles.logo}>
           <div className={styles.logoMark}>
             <svg className={styles.logoSvg} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -125,11 +220,12 @@ function Navbar() {
                 <li className={styles.userMenu}>
                   <button className={styles.userButton}>
                     <div className={styles.avatar}>
-                      {user.profilePic ? (
+                      {profileImageUrl ? (
                         <img 
-                          src={`${BACKEND_URL}/uploads/${user.profilePic}`} 
-                          alt={user.name} 
-                        />
+                          src={profileImageUrl} 
+                          alt={user.name}
+                          onError={() => setAvatarError(true)}
+                        /> 
                       ) : (
                         <span className={styles.avatarInitial}>{user.name?.charAt(0).toUpperCase()}</span>
                       )}
@@ -151,21 +247,6 @@ function Navbar() {
                 </li>
               </>
             )}
-
-            {/* Dark Mode Toggle */}
-            <li>
-              <button 
-                onClick={toggleTheme} 
-                className={styles.themeToggle}
-                aria-label="Toggle theme"
-              >
-                {theme === 'dark' ? (
-                  <span className={styles.themeIcon}>☀️</span>
-                ) : (
-                  <span className={styles.themeIcon}>🌙</span>
-                )}
-              </button>
-            </li>
           </ul>
         </nav>
       </div>
