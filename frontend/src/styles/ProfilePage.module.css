@@ -175,6 +175,8 @@
   letter-spacing: 0.5px;
   font-family: inherit;
   box-shadow: 3px 3px 0 #000;
+  display: inline-block;
+  text-align: center;
 }
 
 :global(.dark-mode) .avatarBtn {
@@ -211,6 +213,8 @@
   letter-spacing: 0.5px;
   font-family: inherit;
   box-shadow: 3px 3px 0 #dc3545;
+  display: inline-block;
+  text-align: center;
 }
 
 .removeAvatarBtn:hover {
@@ -400,6 +404,7 @@
   background: #fff;
   color: #000;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 :global(.dark-mode) .input,
@@ -452,6 +457,8 @@
   letter-spacing: 0.5px;
   font-family: inherit;
   box-shadow: 3px 3px 0 #000;
+  display: inline-block;
+  text-align: center;
 }
 
 :global(.dark-mode) .fileLabel {
@@ -509,6 +516,7 @@
 
 /* ===== SUBMIT BUTTON ===== */
 .submitBtn {
+  width: 100%;
   padding: 0.875rem;
   background: #000;
   color: #fff;
@@ -610,11 +618,13 @@
   .activeTab {
     background: #000;
     color: #fff;
+    border-bottom: 2px solid #000;
   }
 
   :global(.dark-mode) .activeTab {
     background: #fff;
     color: #000;
+    border-bottom: 2px solid #fff;
   }
 
   .avatarWrapper {
@@ -628,11 +638,16 @@
 
   .avatarActions {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
   }
 
   .avatarBtn, .removeAvatarBtn {
     width: 100%;
     text-align: center;
+  }
+
+  .fileInputWrapper {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

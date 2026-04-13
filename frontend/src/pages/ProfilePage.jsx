@@ -1,3 +1,5 @@
+// frontend/src/pages/ProfilePage.jsx
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/axios';
@@ -16,10 +18,11 @@ const ProfilePage = () => {
     const [msg, setMsg] = useState({ type: '', text: '' });
     const [updating, setUpdating] = useState(false);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
+    const [activeTab, setActiveTab] = useState('profile');
+    const [imageError, setImageError] = useState(false);
 
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
-    // Fetch user data on mount
     useEffect(() => {
         fetchUserData();
     }, []);
@@ -37,10 +40,10 @@ const ProfilePage = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
-            console.log('Fetched user data:', response.data);
             setUser(response.data);
             setName(response.data.name || '');
             setBio(response.data.bio || '');
+            setImageError(false);
         } catch (err) {
             console.error('Error fetching user:', err);
             if (err.response?.status === 401) {
@@ -53,30 +56,24 @@ const ProfilePage = () => {
         }
     };
 
-    // Get the best available profile image URL
     const getProfileImageUrl = () => {
         if (!user) return null;
-        
-        // Preview of newly uploaded image
         if (picPreview) return picPreview;
+        if (imageError) return null;
         
-        // Check profilePic field (local storage)
         if (user.profilePic) {
-            if (user.profilePic.startsWith('http')) {
-                return user.profilePic;
-            }
+            if (user.profilePic.startsWith('http')) return user.profilePic;
             return `${BACKEND_URL}/uploads/${user.profilePic}`;
         }
-        
-        // Check avatar field as fallback
         if (user.avatar) {
-            if (user.avatar.startsWith('http')) {
-                return user.avatar;
-            }
+            if (user.avatar.startsWith('http')) return user.avatar;
             return `${BACKEND_URL}/uploads/${user.avatar}`;
         }
-        
         return null;
+    };
+
+    const handleImageLoadError = () => {
+        setImageError(true);
     };
 
     const handleFileChange = (e) => {
@@ -91,7 +88,6 @@ const ProfilePage = () => {
         }
     };
 
-    // Handle local avatar upload (no Cloudinary)
     const handleAvatarUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -121,20 +117,16 @@ const ProfilePage = () => {
                 }
             });
 
-            console.log('Avatar upload response:', response.data);
-
             if (response.data.success) {
-                // Update user with new profile picture
                 setUser(prev => ({ 
                     ...prev, 
                     profilePic: response.data.user?.profilePic || response.data.avatarUrl,
                     avatar: response.data.user?.avatar || response.data.avatarUrl
                 }));
+                setImageError(false);
                 setMsg({ type: 'success', text: 'Profile picture uploaded successfully! ✨' });
                 e.target.value = '';
-                // Refresh user data
                 await fetchUserData();
-                // Dispatch event to notify Navbar to refresh
                 window.dispatchEvent(new Event('userDataUpdated'));
             }
         } catch (err) {
@@ -148,7 +140,6 @@ const ProfilePage = () => {
         }
     };
 
-    // Handle avatar removal
     const handleRemoveAvatar = async () => {
         if (!confirm('Are you sure you want to remove your profile picture?')) return;
 
@@ -160,9 +151,9 @@ const ProfilePage = () => {
             });
             
             setUser(prev => ({ ...prev, profilePic: '', avatar: '' }));
+            setImageError(false);
             setMsg({ type: 'success', text: 'Profile picture removed successfully' });
             await fetchUserData();
-            // Dispatch event to notify Navbar to refresh
             window.dispatchEvent(new Event('userDataUpdated'));
         } catch (err) {
             console.error('Avatar removal error:', err);
@@ -193,16 +184,11 @@ const ProfilePage = () => {
                 },
             });
             
-            console.log('Profile update response:', data);
-            
             setUser(prev => ({ ...prev, ...data.user, name: name, bio: bio }));
             setMsg({ type: 'success', text: 'Profile updated successfully! ✨' });
             setPicPreview(null);
             setPic(null);
-            
-            // Refresh user data
             await fetchUserData();
-            // Dispatch event to notify Navbar to refresh
             window.dispatchEvent(new Event('userDataUpdated'));
             
         } catch (err) {
@@ -264,229 +250,210 @@ const ProfilePage = () => {
     }
 
     const profileImageUrl = getProfileImageUrl();
-    console.log('Profile image URL:', profileImageUrl);
 
     return (
         <div className={styles.profilePage}>
             <div className={styles.container}>
                 <div className={styles.header}>
-                    <h2>My Profile</h2>
-                    <p className={styles.subtitle}>Manage your personal information and account settings</p>
-                    <div className={styles.headerLine}></div>
+                    <h1 className={styles.pageTitle}>My Profile</h1>
+                    <p className={styles.subtitle}>Manage your account settings and profile information</p>
                 </div>
 
                 {msg.text && (
-                    <div className={`${styles.messageBox} ${styles[msg.type]}`}>
-                        <span>{msg.type === 'success' ? '✅' : '❌'}</span>
+                    <div className={`${styles.alert} ${styles[msg.type]}`}>
+                        <span>{msg.type === 'success' ? '✓' : '✗'}</span>
                         <span>{msg.text}</span>
                     </div>
                 )}
 
-                <div className={styles.profileContent}>
-                    <div className={styles.profileCard}>
-                        <div className={styles.avatarWrapper}>
-                            <div className={styles.avatarContainer}>
-                                {profileImageUrl ? (
-                                    <img 
-                                        src={profileImageUrl} 
-                                        alt={user.name} 
-                                        className={styles.avatar}
-                                        onError={(e) => {
-                                            console.error('Image failed to load:', profileImageUrl);
-                                            e.target.style.display = 'none';
-                                            const parent = e.target.parentElement;
-                                            if (parent && parent.querySelector('.defaultAvatarFallback')) {
-                                                parent.querySelector('.defaultAvatarFallback').style.display = 'flex';
-                                            }
-                                        }}
+                <div className={styles.profileLayout}>
+                    {/* Sidebar */}
+                    <div className={styles.sidebar}>
+                        <div className={styles.profileCard}>
+                            <div className={styles.avatarSection}>
+                                <div className={styles.avatarWrapper}>
+                                    {profileImageUrl ? (
+                                        <img 
+                                            src={profileImageUrl} 
+                                            alt={user.name} 
+                                            className={styles.avatar}
+                                            onError={handleImageLoadError}
+                                        />
+                                    ) : (
+                                        <div className={styles.avatarPlaceholder}>
+                                            {user.name?.charAt(0).toUpperCase()}
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className={styles.avatarActions}>
+                                    <label htmlFor="avatarUpload" className={styles.avatarBtn}>
+                                        📷 Upload
+                                    </label>
+                                    <input
+                                        id="avatarUpload"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleAvatarUpload}
+                                        disabled={uploadingAvatar}
+                                        style={{ display: 'none' }}
                                     />
-                                ) : null}
-                                {!profileImageUrl && (
-                                    <div className={`${styles.defaultAvatar} defaultAvatarFallback`}>
-                                        {user.name?.charAt(0).toUpperCase()}
+                                    {(user.profilePic || user.avatar) && !imageError && (
+                                        <button 
+                                            onClick={handleRemoveAvatar}
+                                            className={styles.removeAvatarBtn}
+                                            disabled={updating}
+                                        >
+                                            🗑️ Remove
+                                        </button>
+                                    )}
+                                </div>
+                                <p className={styles.avatarHint}>JPG, PNG or GIF. Max 5MB</p>
+                            </div>
+
+                            <div className={styles.userInfo}>
+                                <h2 className={styles.userName}>{user.name}</h2>
+                                <p className={styles.userEmail}>{user.email}</p>
+                                <div className={styles.userRole}>
+                                    {user.role === 'admin' ? '👑 Administrator' : '👤 Member'}
+                                </div>
+                                {user.bio && (
+                                    <div className={styles.userBio}>
+                                        <p>{user.bio}</p>
                                     </div>
                                 )}
-                            </div>
-                            
-                            {/* Local Avatar Upload Section */}
-                            <div className={styles.cloudinaryUpload}>
-                                <label htmlFor="avatarUploadInput" className={styles.avatarButton}>
-                                    {uploadingAvatar ? '⏳ Uploading...' : '📷 Upload Profile Picture'}
-                                </label>
-                                <input
-                                    id="avatarUploadInput"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleAvatarUpload}
-                                    disabled={uploadingAvatar}
-                                    style={{ display: 'none' }}
-                                />
-                                
-                                {(user.profilePic || user.avatar) && (
-                                    <button 
-                                        onClick={handleRemoveAvatar}
-                                        className={styles.removeAvatarButton}
-                                        disabled={updating}
-                                    >
-                                        🗑️ Remove Picture
-                                    </button>
-                                )}
-                            </div>
-                            
-                            <div className={styles.uploadDivider}>
-                                <span>or</span>
-                            </div>
-                            
-                            <label htmlFor="profilePicInput" className={styles.avatarOverlay} title="Update profile info">
-                                <span>✏️</span>
-                                <span className={styles.overlayText}>Edit Profile Info</span>
-                            </label>
-                            <input
-                                id="profilePicInput"
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                style={{ display: 'none' }}
-                            />
-                        </div>
-
-                        <div className={styles.userInfo}>
-                            <h3 className={styles.profileName}>{user.name}</h3>
-                            <div className={styles.profileEmail}>
-                                <span>📧</span>
-                                <span>{user.email}</span>
-                            </div>
-                            <div className={styles.roleBadge}>
-                                {user.role === 'admin' ? '👑 Administrator' : '👤 Member'}
-                            </div>
-                            {(user.profilePic || user.avatar) && (
-                                <div className={styles.avatarBadge}>
-                                    ✅ Profile picture set
+                                <div className={styles.joinDate}>
+                                    Joined {new Date(user.createdAt).toLocaleDateString('en-US', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    })}
                                 </div>
-                            )}
-                            {user.bio && (
-                                <div className={styles.bioBox}>
-                                    <p>{user.bio}</p>
-                                </div>
-                            )}
-                            <div className={styles.joinDate}>
-                                <span>📅</span>
-                                <span>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className={styles.formsStack}>
-                        <div className={styles.formCard}>
-                            <div className={styles.formHeader}>
-                                <span className={styles.formIcon}>✏️</span>
-                                <h3>Edit Profile</h3>
-                            </div>
+                    {/* Main Content */}
+                    <div className={styles.mainContent}>
+                        <div className={styles.tabs}>
+                            <button 
+                                className={`${styles.tab} ${activeTab === 'profile' ? styles.activeTab : ''}`}
+                                onClick={() => setActiveTab('profile')}
+                            >
+                                ✏️ Edit Profile
+                            </button>
+                            <button 
+                                className={`${styles.tab} ${activeTab === 'password' ? styles.activeTab : ''}`}
+                                onClick={() => setActiveTab('password')}
+                            >
+                                🔒 Change Password
+                            </button>
+                        </div>
 
-                            <form onSubmit={handleProfile} className={styles.form}>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>Display Name</label>
-                                    <input
-                                        type="text"
-                                        className={styles.input}
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        placeholder="Your name"
-                                    />
-                                </div>
-
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>Bio</label>
-                                    <textarea
-                                        className={styles.textarea}
-                                        value={bio}
-                                        onChange={(e) => setBio(e.target.value)}
-                                        placeholder="Tell us about your dance journey..."
-                                        rows={3}
-                                    />
-                                </div>
-
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>Update Profile Picture (Optional)</label>
-                                    <div className={styles.fileInputWrapper}>
+                        {activeTab === 'profile' && (
+                            <div className={styles.formCard}>
+                                <form onSubmit={handleProfile} className={styles.form}>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Display Name</label>
                                         <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handleFileChange}
-                                            className={styles.fileInput}
-                                            id="fileInput"
+                                            type="text"
+                                            className={styles.input}
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            placeholder="Your name"
+                                            required
                                         />
-                                        <label htmlFor="fileInput" className={styles.fileInputLabel}>
-                                            Choose File
-                                        </label>
-                                        <span className={styles.fileName}>
-                                            {pic ? pic.name : 'No file chosen'}
-                                        </span>
                                     </div>
-                                    {picPreview && (
-                                        <small className={styles.fileHint}>
-                                            New image selected: {pic?.name}
+
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Bio</label>
+                                        <textarea
+                                            className={styles.textarea}
+                                            value={bio}
+                                            onChange={(e) => setBio(e.target.value)}
+                                            placeholder="Tell us about yourself..."
+                                            rows={4}
+                                        />
+                                    </div>
+
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Profile Picture (Optional)</label>
+                                        <div className={styles.fileInputWrapper}>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleFileChange}
+                                                className={styles.fileInput}
+                                                id="profilePicInput"
+                                            />
+                                            <label htmlFor="profilePicInput" className={styles.fileLabel}>
+                                                Choose File
+                                            </label>
+                                            <span className={styles.fileName}>
+                                                {pic ? pic.name : 'No file chosen'}
+                                            </span>
+                                        </div>
+                                        {picPreview && (
+                                            <div className={styles.previewImage}>
+                                                <img src={picPreview} alt="Preview" />
+                                            </div>
+                                        )}
+                                        <small className={styles.hint}>
+                                            Square image recommended. Max 5MB
                                         </small>
-                                    )}
-                                    <small className={styles.fileHint}>
-                                        Square image recommended · Max 5MB
-                                    </small>
-                                </div>
+                                    </div>
 
-                                <button 
-                                    type="submit" 
-                                    className={styles.button}
-                                    disabled={updating}
-                                >
-                                    {updating ? 'Saving...' : 'Save Profile'}
-                                </button>
-                            </form>
-                        </div>
-
-                        <div className={styles.formCard}>
-                            <div className={styles.formHeader}>
-                                <span className={styles.formIcon}>🔒</span>
-                                <h3>Change Password</h3>
+                                    <button 
+                                        type="submit" 
+                                        className={styles.submitBtn}
+                                        disabled={updating}
+                                    >
+                                        {updating ? 'Saving...' : 'Save Changes'}
+                                    </button>
+                                </form>
                             </div>
+                        )}
 
-                            <form onSubmit={handlePassword} className={styles.form}>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>Current Password</label>
-                                    <input
-                                        type="password"
-                                        className={styles.input}
-                                        value={curPw}
-                                        onChange={(e) => setCurPw(e.target.value)}
-                                        placeholder="Enter current password"
-                                        required
-                                    />
-                                </div>
+                        {activeTab === 'password' && (
+                            <div className={styles.formCard}>
+                                <form onSubmit={handlePassword} className={styles.form}>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Current Password</label>
+                                        <input
+                                            type="password"
+                                            className={styles.input}
+                                            value={curPw}
+                                            onChange={(e) => setCurPw(e.target.value)}
+                                            placeholder="Enter current password"
+                                            required
+                                        />
+                                    </div>
 
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>New Password</label>
-                                    <input
-                                        type="password"
-                                        className={styles.input}
-                                        value={newPw}
-                                        onChange={(e) => setNewPw(e.target.value)}
-                                        placeholder="Enter new password (min 6 chars)"
-                                        required
-                                        minLength={6}
-                                    />
-                                    <small className={styles.passwordHint}>
-                                        Minimum 6 characters
-                                    </small>
-                                </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>New Password</label>
+                                        <input
+                                            type="password"
+                                            className={styles.input}
+                                            value={newPw}
+                                            onChange={(e) => setNewPw(e.target.value)}
+                                            placeholder="Enter new password (min 6 characters)"
+                                            required
+                                        />
+                                        <small className={styles.hint}>
+                                            Password must be at least 6 characters
+                                        </small>
+                                    </div>
 
-                                <button 
-                                    type="submit" 
-                                    className={styles.button}
-                                    disabled={updating}
-                                >
-                                    {updating ? 'Updating...' : 'Change Password'}
-                                </button>
-                            </form>
-                        </div>
+                                    <button 
+                                        type="submit" 
+                                        className={styles.submitBtn}
+                                        disabled={updating}
+                                    >
+                                        {updating ? 'Updating...' : 'Update Password'}
+                                    </button>
+                                </form>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
