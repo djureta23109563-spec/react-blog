@@ -9,20 +9,42 @@ import styles from '../styles/Navbar.module.css';
 function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout, refreshUser } = useAuth();
+  const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [avatarError, setAvatarError] = useState(false);
+  const [currentUser, setCurrentUser] = useState(user);
 
   // For Vite, use import.meta.env for backend URL
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
+  // Fetch fresh user data from API
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const userData = await response.json();
+        setCurrentUser(userData);
+        setAvatarError(false);
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+
   // Listen for profile updates
   useEffect(() => {
+    // Fetch fresh data when component mounts
+    fetchUserData();
+    
     const handleUserUpdate = () => {
       console.log('Navbar: Profile updated, refreshing user data...');
-      if (refreshUser) {
-        refreshUser();
-      }
+      fetchUserData();
     };
     
     window.addEventListener('userDataUpdated', handleUserUpdate);
@@ -30,7 +52,12 @@ function Navbar() {
     return () => {
       window.removeEventListener('userDataUpdated', handleUserUpdate);
     };
-  }, [refreshUser]);
+  }, []);
+
+  // Update currentUser when the auth user changes
+  useEffect(() => {
+    setCurrentUser(user);
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -41,27 +68,28 @@ function Navbar() {
   const getProfileImageUrl = () => {
     if (avatarError) return null;
     
-    if (user?.profilePic) {
-      if (user.profilePic.startsWith('http')) {
-        return user.profilePic;
+    if (currentUser?.profilePic) {
+      if (currentUser.profilePic.startsWith('http')) {
+        return currentUser.profilePic;
       }
-      return `${BACKEND_URL}/uploads/${user.profilePic}`;
+      return `${BACKEND_URL}/uploads/${currentUser.profilePic}`;
     }
-    if (user?.avatar) {
-      if (user.avatar.startsWith('http')) {
-        return user.avatar;
+    if (currentUser?.avatar) {
+      if (currentUser.avatar.startsWith('http')) {
+        return currentUser.avatar;
       }
-      return `${BACKEND_URL}/uploads/${user.avatar}`;
+      return `${BACKEND_URL}/uploads/${currentUser.avatar}`;
     }
     return null;
   };
 
   const profileImageUrl = getProfileImageUrl();
+  const displayUser = currentUser || user;
 
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        {/* Custom Logo - No text, just icon + brand name styled */}
+        {/* Custom Logo */}
         <Link to="/home" className={styles.logo}>
           <div className={styles.logoMark}>
             <svg className={styles.logoSvg} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -112,7 +140,7 @@ function Navbar() {
               </Link>
             </li>
 
-            {!user ? (
+            {!displayUser ? (
               /* Guest Links */
               <>
                 <li>
@@ -148,7 +176,7 @@ function Navbar() {
                 </li>
                 
                 {/* Admin Only Link */}
-                {user.role === 'admin' && (
+                {displayUser.role === 'admin' && (
                   <li>
                     <Link 
                       to="/admin"
@@ -167,14 +195,14 @@ function Navbar() {
                       {profileImageUrl ? (
                         <img 
                           src={profileImageUrl} 
-                          alt={user.name}
+                          alt={displayUser.name}
                           onError={() => setAvatarError(true)}
                         /> 
                       ) : (
-                        <span className={styles.avatarInitial}>{user.name?.charAt(0).toUpperCase()}</span>
+                        <span className={styles.avatarInitial}>{displayUser.name?.charAt(0).toUpperCase()}</span>
                       )}
                     </div>
-                    <span className={styles.userName}>{user.name?.split(' ')[0]}</span>
+                    <span className={styles.userName}>{displayUser.name?.split(' ')[0]}</span>
                     <span className={styles.dropdownArrow}>▼</span>
                   </button>
                   
