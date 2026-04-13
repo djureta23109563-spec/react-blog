@@ -152,48 +152,70 @@
   color: #000;
 }
 
+/* Avatar Action Buttons */
 .avatarActions {
   display: flex;
   gap: 0.75rem;
   justify-content: center;
   margin-top: 1rem;
+  flex-wrap: wrap;
 }
 
-.avatarBtn, .removeAvatarBtn {
-  padding: 0.5rem 1rem;
+/* Upload Button */
+.avatarBtn {
+  padding: 0.6rem 1.2rem;
   background: #000;
   color: #fff;
   border: 2px solid #000;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: inherit;
+  box-shadow: 3px 3px 0 #000;
 }
 
-:global(.dark-mode) .avatarBtn,
-:global(.dark-mode) .removeAvatarBtn {
+:global(.dark-mode) .avatarBtn {
   background: #fff;
   color: #000;
   border-color: #fff;
+  box-shadow: 3px 3px 0 #fff;
 }
 
-.avatarBtn:hover, .removeAvatarBtn:hover {
+.avatarBtn:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 2px 2px 0 #000;
+  box-shadow: 5px 5px 0 #000;
+  background: #fff;
+  color: #000;
 }
 
-:global(.dark-mode) .avatarBtn:hover,
-:global(.dark-mode) .removeAvatarBtn:hover {
-  box-shadow: 2px 2px 0 #fff;
+:global(.dark-mode) .avatarBtn:hover {
+  box-shadow: 5px 5px 0 #fff;
+  background: #000;
+  color: #fff;
 }
 
+/* Remove Button */
 .removeAvatarBtn {
+  padding: 0.6rem 1.2rem;
   background: #dc3545;
   color: #fff;
-  border-color: #dc3545;
+  border: 2px solid #dc3545;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: inherit;
+  box-shadow: 3px 3px 0 #dc3545;
 }
 
 .removeAvatarBtn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 #dc3545;
   background: #fff;
   color: #dc3545;
 }
@@ -316,7 +338,7 @@
   color: #666;
   cursor: pointer;
   transition: all 0.2s;
-  position: relative;
+  font-family: inherit;
 }
 
 .tab:hover {
@@ -418,29 +440,34 @@
 }
 
 .fileLabel {
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   background: #000;
   color: #fff;
   border: 2px solid #000;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: inherit;
+  box-shadow: 3px 3px 0 #000;
 }
 
 :global(.dark-mode) .fileLabel {
   background: #fff;
   color: #000;
   border-color: #fff;
+  box-shadow: 3px 3px 0 #fff;
 }
 
 .fileLabel:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 2px 2px 0 #000;
+  box-shadow: 5px 5px 0 #000;
 }
 
 :global(.dark-mode) .fileLabel:hover {
-  box-shadow: 2px 2px 0 #fff;
+  box-shadow: 5px 5px 0 #fff;
 }
 
 .fileName {
@@ -480,7 +507,7 @@
   color: #999;
 }
 
-/* ===== BUTTON ===== */
+/* ===== SUBMIT BUTTON ===== */
 .submitBtn {
   padding: 0.875rem;
   background: #000;
@@ -492,6 +519,7 @@
   transition: all 0.2s;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  font-family: inherit;
   box-shadow: 4px 4px 0 #000;
 }
 
@@ -596,5 +624,15 @@
 
   .pageTitle {
     font-size: 2rem;
+  }
+
+  .avatarActions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .avatarBtn, .removeAvatarBtn {
+    width: 100%;
+    text-align: center;
   }
 }
