@@ -1,110 +1,127 @@
-import { useState } from 'react';
+// frontend/src/pages/ForgotPasswordPage.jsx
+
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../api/axios';
 import styles from '../styles/ForgotPasswordPage.module.css';
 
 const ForgotPasswordPage = () => {
-    const [email, setEmail] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState('');
-    const [error, setError] = useState('');
-    const [submitted, setSubmitted] = useState(false);
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
-        setMessage('');
-
-        try {
-            const response = await API.post('/auth/forgot-password', { email });
-            setMessage(response.data.message);
-            setSubmitted(true);
-        } catch (err) {
-            setError(err.response?.data?.message || 'Something went wrong. Please try again.');
-        } finally {
-            setLoading(false);
-        }
+  // Check for dark mode
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      setIsDarkMode(isDark);
     };
+    
+    checkDarkMode();
+    
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true });
+    
+    return () => observer.disconnect();
+  }, []);
 
-    if (submitted) {
-        return (
-            <div className={styles.container}>
-                <div className={styles.card}>
-                    <div className={styles.successIcon}>📧</div>
-                    <h2>Check Your Email</h2>
-                    <p>
-                        We've sent a password reset link to <strong>{email}</strong>
-                    </p>
-                    <p className={styles.instruction}>
-                        Click the link in the email to reset your password. The link will expire in 1 hour.
-                    </p>
-                    <Link to="/login" className={styles.backButton}>
-                        Back to Login
-                    </Link>
-                    <button 
-                        onClick={() => setSubmitted(false)} 
-                        className={styles.resendButton}
-                    >
-                        Didn't receive email? Try again
-                    </button>
-                </div>
-            </div>
-        );
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setMessage('');
+    setLoading(true);
+
+    try {
+      const response = await API.post('/password/forgot-password', { email });
+      setMessage(response.data.message || 'Check your email for password reset instructions.');
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Forgot password error:', err);
+      setError(err.response?.data?.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
     }
+  };
 
-    return (
-        <div className={styles.container}>
-            <div className={styles.card}>
-                <div className={styles.header}>
-                    <h2>Forgot Password?</h2>
-                    <p>Enter your email address and we'll send you a link to reset your password.</p>
+  return (
+    <div className={`${styles.forgotPage} ${isDarkMode ? styles.darkMode : ''}`}>
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <div className={styles.iconWrapper}>
+              <span className={styles.lockIcon}>🔒</span>
+            </div>
+            <h1>Forgot Password?</h1>
+            <p>Enter your email address and we'll send you a link to reset your password.</p>
+          </div>
+
+          <div className={styles.cardBody}>
+            {error && (
+              <div className={styles.alertError}>
+                <span>❌</span>
+                <span>{error}</span>
+              </div>
+            )}
+
+            {message && (
+              <div className={styles.alertSuccess}>
+                <span>✅</span>
+                <span>{message}</span>
+              </div>
+            )}
+
+            {!submitted ? (
+              <form onSubmit={handleSubmit} className={styles.form}>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Email Address</label>
+                  <div className={styles.inputWrapper}>
+                    <input
+                      type="email"
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className={styles.input}
+                    />
+                  </div>
                 </div>
 
-                {error && (
-                    <div className={styles.errorAlert}>
-                        <span>⚠️</span>
-                        <span>{error}</span>
-                    </div>
-                )}
+                <button 
+                  type="submit" 
+                  className={styles.submitButton}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <span className={styles.spinner}></span>
+                      Sending...
+                    </>
+                  ) : (
+                    'Send Reset Link'
+                  )}
+                </button>
+              </form>
+            ) : (
+              <div className={styles.successMessage}>
+                <p>We've sent a password reset link to:</p>
+                <p className={styles.sentEmail}>{email}</p>
+                <p>Please check your email and follow the instructions.</p>
+              </div>
+            )}
 
-                {message && (
-                    <div className={styles.successAlert}>
-                        <span>✅</span>
-                        <span>{message}</span>
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit} className={styles.form}>
-                    <div className={styles.formGroup}>
-                        <label>Email Address</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="your@email.com"
-                            required
-                            disabled={loading}
-                        />
-                    </div>
-
-                    <button 
-                        type="submit" 
-                        className={styles.submitButton}
-                        disabled={loading}
-                    >
-                        {loading ? 'Sending...' : 'Send Reset Link'}
-                    </button>
-
-                    <div className={styles.footer}>
-                        <Link to="/login" className={styles.backLink}>
-                            ← Back to Login
-                        </Link>
-                    </div>
-                </form>
+            <div className={styles.backToLogin}>
+              <Link to="/login">
+                ← Back to Login
+              </Link>
             </div>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default ForgotPasswordPage;
