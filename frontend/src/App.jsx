@@ -21,18 +21,17 @@ import EditPostPage from './pages/EditPostPage';
 import AdminPage from './pages/AdminPage';
 import DeletedPostPage from './pages/DeletedPostPage';
 
-// Import forgot password pages
+// NEW: Import forgot password pages
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function App() {
   const location = useLocation();
-  // Hide navbar only on splash page (root path)
-  const hideNavbar = location.pathname === '/';
+  const isSplashPage = location.pathname === '/';
 
   return (
     <>
-      {!hideNavbar && <Navbar />}
+      {!isSplashPage && <Navbar />}
       
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
@@ -82,7 +81,7 @@ function App() {
             </PageTransition>
           } />
 
-          {/* Forgot password routes */}
+          {/* NEW: Forgot password routes */}
           <Route path='/forgot-password' element={
             <PageTransition>
               <ForgotPasswordPage />
@@ -126,7 +125,7 @@ function App() {
             }
           />
 
-          {/* Admin only routes */}
+          {/* Admin only */}
           <Route
             path='/admin'
             element={
@@ -155,4 +154,4 @@ function App() {
   );
 }
 
-export default App;
+export default App;"// redeploy after rename" 
