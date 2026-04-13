@@ -1,352 +1,333 @@
 /* frontend/src/styles/ProfilePage.module.css */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 .profilePage {
-  font-family: 'Inter', sans-serif;
-  color: #1a1a1a;
-  background: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f5f5f5;
   min-height: 100vh;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-:global(.dark-mode) .profilePage {
-  background: #0a0a0a;
-  color: #f0f0f0;
-}
-
-/* ===== CONTAINER ===== */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
   padding: 2rem;
 }
 
-/* ===== HEADER ===== */
+/* Dark mode */
+:global(.dark-mode) .profilePage {
+  background: #0a0a0a;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
 .header {
   margin-bottom: 2rem;
-  position: relative;
 }
 
-.header h2 {
-  font-size: 2.5rem;
-  font-weight: 300;
+.pageTitle {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #1a1a1a;
   margin: 0 0 0.5rem;
-  color: #000;
 }
 
-:global(.dark-mode) .header h2 {
+:global(.dark-mode) .pageTitle {
   color: #fff;
 }
 
 .subtitle {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #666;
-  margin: 0 0 1rem;
+  margin: 0;
 }
 
 :global(.dark-mode) .subtitle {
   color: #999;
 }
 
-.headerLine {
-  width: 80px;
-  height: 2px;
-  background: #000;
-}
-
-:global(.dark-mode) .headerLine {
-  background: #fff;
-}
-
-/* ===== MESSAGE BOX ===== */
-.messageBox {
+/* Alert Messages */
+.alert {
   padding: 1rem;
-  margin-bottom: 2rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  border: 2px solid #000;
-  background: #f8f8f8;
-  box-shadow: 4px 4px 0 #000;
+  font-size: 0.9rem;
 }
 
-:global(.dark-mode) .messageBox {
-  background: #111;
-  border-color: #fff;
-  box-shadow: 4px 4px 0 #fff;
+.alert.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
 }
 
-.messageBox.success {
-  border-left-width: 6px;
+.alert.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
 }
 
-.messageBox.error {
-  border-right-width: 6px;
+:global(.dark-mode) .alert.success {
+  background: #1a3a1a;
+  color: #90ee90;
 }
 
-/* ===== PROFILE CONTENT - TWO COLUMN LAYOUT ===== */
-.profileContent {
+:global(.dark-mode) .alert.error {
+  background: #3a1a1a;
+  color: #ff9090;
+}
+
+/* Profile Layout - 2 columns */
+.profileLayout {
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 2rem;
 }
 
-/* ===== PROFILE CARD ===== */
-.profileCard {
-  background: #f8f8f8;
-  border: 2px solid #000;
-  box-shadow: 6px 6px 0 #000;
-  padding: 2rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: fit-content;
+/* Sidebar - Profile Card */
+.sidebar {
   position: sticky;
   top: 2rem;
+  height: fit-content;
+}
+
+.profileCard {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e0e0e0;
 }
 
 :global(.dark-mode) .profileCard {
   background: #111;
-  border-color: #fff;
-  box-shadow: 6px 6px 0 #fff;
+  border-color: #333;
+  box-shadow: none;
 }
 
-/* Avatar */
+/* Avatar Section */
+.avatarSection {
+  padding: 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
 .avatarWrapper {
-  position: relative;
-  margin-bottom: 1.5rem;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.avatarContainer {
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid #000;
-  box-shadow: 4px 4px 0 #000;
-  margin-bottom: 1rem;
-}
-
-:global(.dark-mode) .avatarContainer {
-  border-color: #fff;
-  box-shadow: 4px 4px 0 #fff;
+  border: 4px solid white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: white;
 }
 
 .avatar {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
-.defaultAvatar {
+.avatarPlaceholder {
   width: 100%;
   height: 100%;
-  background: #000;
-  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 3rem;
-  font-weight: 600;
+  font-weight: bold;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
 }
 
-:global(.dark-mode) .defaultAvatar {
-  background: #fff;
-  color: #000;
-}
-
-.avatarOverlay {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #000;
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border: 2px solid #fff;
-  cursor: pointer;
+.avatarActions {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s;
-  white-space: nowrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1rem;
 }
 
-:global(.dark-mode) .avatarOverlay {
-  background: #fff;
-  color: #000;
-  border-color: #000;
-}
-
-.avatarOverlay:hover {
-  transform: translateX(-50%) translateY(-2px);
-  box-shadow: 2px 2px 0 #000;
-}
-
-:global(.dark-mode) .avatarOverlay:hover {
-  box-shadow: 2px 2px 0 #fff;
-}
-
-.overlayText {
+.avatarBtn, .removeAvatarBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
   font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
   font-weight: 500;
+}
+
+.avatarBtn {
+  background: white;
+  color: #667eea;
+}
+
+.avatarBtn:hover {
+  background: #f0f0f0;
+  transform: translateY(-2px);
+}
+
+.removeAvatarBtn {
+  background: #dc3545;
+  color: white;
+}
+
+.removeAvatarBtn:hover {
+  background: #c82333;
+}
+
+.avatarHint {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 0.75rem;
 }
 
 /* User Info */
 .userInfo {
-  width: 100%;
+  padding: 1.5rem;
   text-align: center;
 }
 
-.profileName {
-  font-size: 1.5rem;
+.userName {
+  font-size: 1.3rem;
   font-weight: 600;
-  color: #000;
-  margin: 0 0 0.5rem;
+  color: #1a1a1a;
+  margin: 0 0 0.25rem;
 }
 
-:global(.dark-mode) .profileName {
+:global(.dark-mode) .userName {
   color: #fff;
 }
 
-.profileEmail {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+.userEmail {
+  font-size: 0.85rem;
   color: #666;
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  background: #fff;
-  border: 2px solid #e0e0e0;
+  margin-bottom: 0.75rem;
 }
 
-:global(.dark-mode) .profileEmail {
-  background: #0a0a0a;
+:global(.dark-mode) .userEmail {
   color: #999;
-  border-color: #333;
 }
 
-.roleBadge {
+.userRole {
   display: inline-block;
-  padding: 0.35rem 1.5rem;
-  background: #f8f8f8;
-  color: #000;
-  border: 2px solid #000;
-  font-size: 0.9rem;
-  font-weight: 500;
+  padding: 0.25rem 1rem;
+  background: #e9ecef;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  color: #495057;
   margin-bottom: 1rem;
 }
 
-:global(.dark-mode) .roleBadge {
-  background: #111;
-  color: #fff;
-  border-color: #fff;
-}
-
-.bioBox {
-  background: #fff;
-  padding: 1rem;
-  border: 2px solid #e0e0e0;
-  margin: 1rem 0;
-  text-align: left;
-  font-size: 0.95rem;
-  color: #444;
-  line-height: 1.5;
-}
-
-:global(.dark-mode) .bioBox {
-  background: #0a0a0a;
+:global(.dark-mode) .userRole {
+  background: #222;
   color: #ccc;
-  border-color: #333;
+}
+
+.userBio {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 12px;
+  margin: 1rem 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #555;
+  text-align: left;
+}
+
+:global(.dark-mode) .userBio {
+  background: #1a1a1a;
+  color: #ccc;
 }
 
 .joinDate {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  color: #666;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
+  color: #999;
+  margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 2px solid #e0e0e0;
+  border-top: 1px solid #e0e0e0;
 }
 
 :global(.dark-mode) .joinDate {
-  color: #999;
   border-top-color: #333;
 }
 
-/* ===== FORMS STACK ===== */
-.formsStack {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+/* Main Content */
+.mainContent {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e0e0e0;
 }
 
-.formCard {
-  background: #ffffff;
-  border: 2px solid #000;
-  box-shadow: 6px 6px 0 #000;
-  padding: 1.5rem;
+:global(.dark-mode) .mainContent {
+  background: #111;
+  border-color: #333;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 2rem;
+  padding-bottom: 0;
+}
+
+:global(.dark-mode) .tabs {
+  border-bottom-color: #333;
+}
+
+.tab {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
   transition: all 0.2s;
+  position: relative;
+  border-radius: 8px 8px 0 0;
+}
+
+.tab:hover {
+  color: #667eea;
+}
+
+.activeTab {
+  color: #667eea;
+  background: #f0f0ff;
+}
+
+:global(.dark-mode) .activeTab {
+  background: #1a1a2e;
+}
+
+.activeTab::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #667eea;
+}
+
+/* Forms */
+.formCard {
+  background: white;
 }
 
 :global(.dark-mode) .formCard {
-  background: #0a0a0a;
-  border-color: #fff;
-  box-shadow: 6px 6px 0 #fff;
+  background: #111;
 }
 
-.formCard:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 8px 8px 0 #000;
-}
-
-:global(.dark-mode) .formCard:hover {
-  box-shadow: 8px 8px 0 #fff;
-}
-
-.formHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid #000;
-}
-
-:global(.dark-mode) .formHeader {
-  border-bottom-color: #fff;
-}
-
-.formHeader h3 {
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #000;
-}
-
-:global(.dark-mode) .formHeader h3 {
-  color: #fff;
-}
-
-.formIcon {
-  font-size: 1.2rem;
-}
-
-/* ===== FORM STYLES ===== */
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 .formGroup {
@@ -356,279 +337,190 @@
 }
 
 .label {
-  font-size: 0.9rem;
   font-weight: 600;
-  color: #000;
+  color: #333;
+  font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.5px;
 }
 
 :global(.dark-mode) .label {
-  color: #fff;
+  color: #ccc;
 }
 
-.input,
-.textarea {
-  width: 100%;
+.input, .textarea {
   padding: 0.75rem 1rem;
-  border: 2px solid #000;
-  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 0.95rem;
   transition: all 0.2s;
-  background: transparent;
-  color: #000;
   font-family: inherit;
+  background: white;
+  color: #333;
 }
 
 :global(.dark-mode) .input,
 :global(.dark-mode) .textarea {
-  border-color: #fff;
+  background: #1a1a1a;
+  border-color: #333;
   color: #fff;
 }
 
-.input:focus,
-.textarea:focus {
+.input:focus, .textarea:focus {
   outline: none;
-  background: #f8f8f8;
-}
-
-:global(.dark-mode) .input:focus,
-:global(.dark-mode) .textarea:focus {
-  background: #1a1a1a;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 100px;
 }
 
-/* ===== FILE INPUT ===== */
+/* File Input */
 .fileInputWrapper {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
   flex-wrap: wrap;
 }
 
 .fileInput {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
+  display: none;
 }
 
-.fileInputLabel {
-  padding: 0.5rem 1rem;
-  background: #000;
-  color: #fff;
-  border: 2px solid #000;
-  font-size: 0.9rem;
-  font-weight: 500;
+.fileLabel {
+  padding: 0.6rem 1.2rem;
+  background: #e9ecef;
+  color: #495057;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 0.85rem;
   transition: all 0.2s;
-  white-space: nowrap;
 }
 
-:global(.dark-mode) .fileInputLabel {
-  background: #fff;
-  color: #000;
-  border-color: #fff;
+.fileLabel:hover {
+  background: #dee2e6;
 }
 
-.fileInputLabel:hover {
-  background: transparent;
-  color: #000;
-}
-
-:global(.dark-mode) .fileInputLabel:hover {
-  background: transparent;
-  color: #fff;
+:global(.dark-mode) .fileLabel {
+  background: #222;
+  color: #ccc;
 }
 
 .fileName {
+  font-size: 0.85rem;
   color: #666;
-  font-size: 0.9rem;
-  word-break: break-all;
 }
 
 :global(.dark-mode) .fileName {
   color: #999;
 }
 
-.fileHint {
-  color: #666;
-  font-size: 0.8rem;
-  margin-top: 0.25rem;
-  display: block;
+.previewImage {
+  margin-top: 0.75rem;
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #ddd;
 }
 
-:global(.dark-mode) .fileHint {
+.previewImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hint {
+  font-size: 0.7rem;
   color: #999;
-}
-
-.passwordHint {
-  color: #666;
-  font-size: 0.8rem;
   margin-top: 0.25rem;
 }
 
-:global(.dark-mode) .passwordHint {
-  color: #999;
-}
-
-/* ===== BUTTON ===== */
-.button {
-  padding: 0.75rem 1.5rem;
-  background: #000;
-  color: #fff;
-  border: 2px solid #000;
+/* Submit Button */
+.submitBtn {
+  padding: 0.875rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   margin-top: 0.5rem;
-  width: 100%;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  box-shadow: 4px 4px 0 #000;
 }
 
-:global(.dark-mode) .button {
-  background: #fff;
-  color: #000;
-  border-color: #fff;
-  box-shadow: 4px 4px 0 #fff;
+.submitBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
-.button:hover {
-  background: transparent;
-  color: #000;
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 #000;
-}
-
-:global(.dark-mode) .button:hover {
-  background: transparent;
-  color: #fff;
-  box-shadow: 6px 6px 0 #fff;
-}
-
-.button:disabled {
-  opacity: 0.5;
+.submitBtn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: 4px 4px 0 #000;
 }
 
-:global(.dark-mode) .button:disabled {
-  box-shadow: 4px 4px 0 #fff;
-}
-
-/* ===== LOADING STATE ===== */
+/* Loading State */
 .loadingContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: #ffffff;
-}
-
-:global(.dark-mode) .loadingContainer {
-  background: #0a0a0a;
+  gap: 1rem;
 }
 
 .loadingSpinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #f0f0f0;
-  border-top: 3px solid #000;
+  border: 3px solid #e0e0e0;
+  border-top: 3px solid #667eea;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
-}
-
-:global(.dark-mode) .loadingSpinner {
-  border-color: #222;
-  border-top-color: #fff;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 968px) {
-  .profileContent {
+/* Responsive */
+@media (max-width: 768px) {
+  .profilePage {
+    padding: 1rem;
+  }
+
+  .profileLayout {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
 
-  .profileCard {
+  .sidebar {
     position: static;
-    max-width: 400px;
-    margin: 0 auto;
   }
 
-  .avatarWrapper {
-    margin-bottom: 1rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .container {
-    padding: 1rem;
+  .mainContent {
+    padding: 1.5rem;
   }
 
-  .header h2 {
-    font-size: 2rem;
+  .tabs {
+    flex-direction: column;
+    gap: 0.5rem;
+    border-bottom: none;
   }
 
-  .avatarContainer {
-    width: 120px;
-    height: 120px;
+  .tab {
+    text-align: center;
+    border-radius: 8px;
   }
 
-  .defaultAvatar {
-    font-size: 2.5rem;
-  }
-
-  .overlayText {
+  .activeTab::after {
     display: none;
   }
 
-  .avatarOverlay {
-    padding: 0.5rem;
-  }
-
-  .profileName {
-    font-size: 1.3rem;
-  }
-
-  .formCard {
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .header h2 {
-    font-size: 1.8rem;
-  }
-
-  .fileInputWrapper {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .fileName {
-    word-break: break-all;
-  }
-
-  .button {
-    font-size: 0.9rem;
+  .avatarWrapper {
+    width: 100px;
+    height: 100px;
   }
 }
